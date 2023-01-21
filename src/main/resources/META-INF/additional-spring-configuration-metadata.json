@@ -1,0 +1,48 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Description for jwt.secret."
+    },
+    {
+      "name": "jwt.header",
+      "type": "java.lang.String",
+      "description": "Description for jwt.header."
+    },
+    {
+      "name": "token.expiration",
+      "type": "java.lang.String",
+      "description": "Description for token.expiration."
+    },
+    {
+      "name": "refresh-token.expiration",
+      "type": "java.lang.String",
+      "description": "Description for refresh-token.expiration."
+    },
+    {
+      "name": "image.path",
+      "type": "java.lang.String",
+      "description": "Description for image.path."
+    },
+    {
+      "name": "s3.bucket.arn",
+      "type": "java.lang.String",
+      "description": "Description for s3.bucket.arn."
+    },
+    {
+      "name": "s3.bucket.domain",
+      "type": "java.lang.String",
+      "description": "Description for s3.bucket.domain."
+    },
+    {
+      "name": "access.key",
+      "type": "java.lang.String",
+      "description": "Description for access.key."
+    },
+    {
+      "name": "secret.key",
+      "type": "java.lang.String",
+      "description": "Description for secret.key."
+    }
+  ] }

@@ -1,0 +1,15 @@
+INSERT INTO `additional` (`id`,  `code`, `name`)
+VALUES ('1', 'realestate_additional_ready_to_move_in' , 'Odmah useljiv'),
+       ('2', 'realestate_additional_deposite', 'Depozit'),
+       ('3', 'realestate_additional_not_top_floor', 'Nije poslednji sprat'),
+       ('4', 'realestate_additional_not_ap_in_house', 'Nije stan u kuci'),
+       ('5', 'realestate_additional_for_workers', 'Smestaj za radnike'),
+       ('6', 'realestate_additional_pets_allowed', 'Dozvoljeni kucni ljubimci'),
+       ('7', 'realestate_additional_salonac', 'Salonac'),
+       ('8', 'realestate_additional_duplex', 'Duplex'),
+       ('9', 'realestate_additional_penthouse', 'Penthouse'),
+       ('10', 'realestate_additional_potkrovlje', 'Potkrovlje'),
+       ('11', 'realestate_additional_for_smokers', 'Za pusace'),
+       ('12', 'realestate_additional_for_non_smokers', 'Za nepusace'),
+       ('13', 'realestate_additional_for_students', 'Za studente'),
+       ('14', 'realestate_additional_stan_for_day', 'Stan na dan');
