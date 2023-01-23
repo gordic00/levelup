@@ -51,6 +51,7 @@ public class SecurityConfigurationBasicAuth {
                 .authorizeHttpRequests((auths) -> {
                             try {
                                 auths
+                                        .antMatchers("/**").permitAll()
                                         .requestMatchers(rmAuth).authenticated()
                                         .anyRequest().permitAll()
                                         .and().cors()

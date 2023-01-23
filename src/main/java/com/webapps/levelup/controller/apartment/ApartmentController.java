@@ -65,14 +65,11 @@ public class ApartmentController {
     /**
      * Return Apartment by ID.
      *
-     * @param request     HttpServletRequest
      * @param apartmentId Integer
      * @return ApartmentResponse
      */
-    @TokenAuth
     @GetMapping(path = "/read-by-id")
     public ResponseEntity<ApartmentResponse> read(
-            HttpServletRequest request,
             @NotNull
             @RequestParam("apartment_id")
             Integer apartmentId
@@ -83,13 +80,10 @@ public class ApartmentController {
     /**
      * Return all Apartments.
      *
-     * @param request HttpServletRequest
      * @return List<ApartmentResponse>
      */
-    @TokenAuth
     @GetMapping(path = "/read-all-apartments")
     public ResponseEntity<Page<ApartmentResponse>> readAll(
-            HttpServletRequest request,
             @RequestParam(name = "type_ids", required = false)
             List<Integer> typeIds,
             @RequestParam(name = "location", required = false)
@@ -124,28 +118,21 @@ public class ApartmentController {
     /**
      * Return all available apartment types.
      *
-     * @param request HttpServletRequest
      * @return List<TypeEntity>
      */
-    @TokenAuth
     @GetMapping(path = "/read-types")
-    public ResponseEntity<List<TypeEntity>> readTypes(
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<List<TypeEntity>> readTypes() {
         return service.readTypes();
     }
 
     /**
      * Read all params lists.
      *
-     * @param request HttpServletRequest
      * @return ListsDto
      */
     @TokenAuth
     @GetMapping(path = "/read-all-lists")
-    public ResponseEntity<ListsDto> readAllLists(
-            HttpServletRequest request
-    ) {
+    public ResponseEntity<ListsDto> readAllLists() {
         return service.readAllLists();
     }
 
