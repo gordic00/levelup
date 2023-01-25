@@ -130,7 +130,6 @@ public class ApartmentController {
      *
      * @return ListsDto
      */
-    @TokenAuth
     @GetMapping(path = "/read-all-lists")
     public ResponseEntity<ListsDto> readAllLists() {
         return service.readAllLists();

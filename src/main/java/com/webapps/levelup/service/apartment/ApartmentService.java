@@ -197,7 +197,7 @@ public class ApartmentService {
         if (location == null) {
             if (adCode == null) {
                 result = repoResponse.
-                        findAllByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
@@ -206,7 +206,7 @@ public class ApartmentService {
                                 );
             } else {
                 result = repoResponse.
-                        findAllByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         adCode, searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
@@ -217,7 +217,7 @@ public class ApartmentService {
         } else {
             if (adCode == null) {
                 query = repoResponse.
-                        findAllByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
@@ -230,7 +230,7 @@ public class ApartmentService {
                                 !p.getAddress().toLowerCase().contains(location.toLowerCase()));
             } else {
                 query = repoResponse.
-                        findAllByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         adCode, searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),

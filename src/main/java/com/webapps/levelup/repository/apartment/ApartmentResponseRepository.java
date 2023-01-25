@@ -20,19 +20,19 @@ public interface ApartmentResponseRepository extends CrudRepository<ApartmentRes
 
     Page<ApartmentResponse> findAll(Pageable pageable);
 
-    Page<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    Page<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
             (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);
 
-    Page<ApartmentResponse> findAllByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    Page<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
             (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);
 
-    List<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    List<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
             (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to);
 
-    List<ApartmentResponse> findAllByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    List<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
             (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to);
 }
