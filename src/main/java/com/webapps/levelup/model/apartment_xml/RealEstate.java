@@ -3,7 +3,8 @@ package com.webapps.levelup.model.apartment_xml;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Column;
@@ -11,9 +12,15 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@Data
+@XmlRootElement(name = "realEstate")
+@XmlAccessorType(XmlAccessType.FIELD)
+@Getter
+@Setter
 public class RealEstate {
     @Schema(example = "1")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "1")
@@ -22,8 +29,8 @@ public class RealEstate {
 
     @Schema(example = "Odlican Stan na Dorcolu")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Stan na Dorcolu")
-    @JsonProperty("title")
-    private String title;
+    @JsonProperty("title_sr")
+    private String titleSr;
 
     @Schema(example = "Beograd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Beograd")
@@ -42,8 +49,8 @@ public class RealEstate {
 
     @Schema(example = "Odlican svetao stan, blizu trga...")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Komforan funkcionalan stan...")
-    @JsonProperty("description_rs")
-    private String description;
+    @JsonProperty("description_sr")
+    private String descriptionSr;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JsonProperty("photo")
@@ -129,3 +136,5 @@ public class RealEstate {
     @JsonProperty("number_rooms")
     private Integer rooms;
 }
+
+

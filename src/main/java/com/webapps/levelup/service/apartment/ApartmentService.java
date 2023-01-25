@@ -3,13 +3,12 @@ package com.webapps.levelup.service.apartment;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.webapps.levelup.configuration.ModelMapperConfig;
 import com.webapps.levelup.exception.CustomException;
+import com.webapps.levelup.helper.DateHelper;
 import com.webapps.levelup.helper.TokenHelper;
 import com.webapps.levelup.model.apartment.*;
 import com.webapps.levelup.model.apartment_xml.RealEstate;
-import com.webapps.levelup.model.dto.ApartmentCreateDto;
-import com.webapps.levelup.model.dto.ApartmentUpdateDto;
-import com.webapps.levelup.model.dto.ListsDto;
-import com.webapps.levelup.model.dto.SearchParamsDto;
+import com.webapps.levelup.model.apartment_xml.LevelUpRealEstates;
+import com.webapps.levelup.model.dto.*;
 import com.webapps.levelup.repository.apartment.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -184,63 +183,65 @@ public class ApartmentService {
     /*
     Read all apartments.
      */
-    public ResponseEntity<Page<ApartmentResponse>> readAll(
-            List<Integer> typeId, String location, List<Integer> structureId, Long priceFrom, Long priceTo,
-            String adCode, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-            List<Integer> constructionTypeIds, List<Integer> includedIds, Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public ResponseEntity<Page<ApartmentResponse>> readAll(ApartmentReadDto apartmentReadDto) {
+        Pageable pageable = PageRequest.of(apartmentReadDto.getPage(), apartmentReadDto.getSize());
         Page<ApartmentResponse> result;
         List<ApartmentResponse> query;
 
         SearchParamsDto searchParams =
-                prepareParamsForSearch(typeId, structureId, floorIds, furnishedIds, heatingIds, constructionTypeIds, includedIds);
-        if (location == null) {
-            if (adCode == null) {
+                prepareParamsForSearch(apartmentReadDto.getTypeIds(), apartmentReadDto.getStructureIds(),
+                        apartmentReadDto.getFloorIds(), apartmentReadDto.getFurnishedIds(),
+                        apartmentReadDto.getHeatingIds(), apartmentReadDto.getConstructionTypeIds(),
+                        apartmentReadDto.getIncludedIds());
+
+        System.out.println();
+        if (apartmentReadDto.getLocation() == null) {
+            if (apartmentReadDto.getAdCode() == null) {
                 result = repoResponse.
                         findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), priceFrom, priceTo, pageable
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo(), pageable
                                 );
             } else {
                 result = repoResponse.
                         findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
-                                        adCode, searchParams.getTypeIds(), searchParams.getStructureIds(),
+                                        apartmentReadDto.getAdCode(), searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), priceFrom, priceTo, pageable
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo(), pageable
                                 );
             }
         } else {
-            if (adCode == null) {
+            if (apartmentReadDto.getAdCode() == null) {
                 query = repoResponse.
                         findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), priceFrom, priceTo
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo()
                                 );
                 query.removeIf(p ->
-                        !p.getCity().toLowerCase().contains(location.toLowerCase()) &&
-                                !p.getMunicipality().toLowerCase().contains(location.toLowerCase()) &&
-                                !p.getAddress().toLowerCase().contains(location.toLowerCase()));
+                        !p.getCity().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
+                                !p.getMunicipality().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
+                                !p.getAddress().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()));
             } else {
                 query = repoResponse.
                         findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
                                 (
-                                        adCode, searchParams.getTypeIds(), searchParams.getStructureIds(),
+                                        apartmentReadDto.getAdCode(), searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), priceFrom, priceTo
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo()
                                 );
                 query.removeIf(p ->
-                        !p.getCity().toLowerCase().contains(location.toLowerCase()) &&
-                                !p.getMunicipality().toLowerCase().contains(location.toLowerCase()) &&
-                                !p.getAddress().toLowerCase().contains(location.toLowerCase()));
+                        !p.getCity().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
+                                !p.getMunicipality().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
+                                !p.getAddress().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()));
             }
             result = new PageImpl<>(query, pageable, query.size());
         }
@@ -359,8 +360,8 @@ public class ApartmentService {
     public ResponseEntity<String> delete(Integer apartmentId) {
         if (repoResponse.existsById(apartmentId)) {
             try {
+                apartmentImagesService.deleteAllByApartmentFromAws(apartmentId);
                 repo.deleteById(apartmentId);
-                apartmentImagesService.deleteLocalStorageByApartmentId(apartmentId);
                 return ResponseEntity.ok("Successfully deleted");
             } catch (Exception e) {
                 throw new CustomException(e.getMessage());
@@ -372,27 +373,32 @@ public class ApartmentService {
     /*
     Download XML file for Apartment by ID.
      */
-    public void downloadXml(HttpServletResponse response, Integer apartmentId) throws IOException {
-        Optional<ApartmentResponse> apartment = repoResponse.findById(apartmentId);
-        if (apartment.isEmpty()) {
-            throw new CustomException("There is no apartment with given ID.");
-        } else {
-            RealEstate realEstate = mapResponseXmlDto(apartment.get());
-            XmlMapper xmlMapper = new XmlMapper();
-            xmlMapper.writerWithDefaultPrettyPrinter().writeValue(new File("apartment" + apartmentId + ".xml"), realEstate);
-            File file = new File("apartment" + apartmentId + ".xml");
-            assertNotNull(file);
-            String mimeType = URLConnection.guessContentTypeFromName(file.getName());
-            if (mimeType == null) {
-                mimeType = "application/xml";
-            }
-            response.setContentType(mimeType);
-            response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
-            response.setContentLength((int) file.length());
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-            FileCopyUtils.copy(inputStream, response.getOutputStream());
+    public void downloadXml(HttpServletResponse response) throws IOException {
+//        Optional<ApartmentResponse> apartment = repoResponse.findById(apartmentId);
+        List<ApartmentResponse> apartmentResponses = repoResponse.findByOrderByIdDesc();
+        if (apartmentResponses.isEmpty()) {
+            throw new CustomException("There are no apartments.");
         }
-        File local = new File("apartment" + apartmentId + ".xml");
+        String date = DateHelper.currentDate("MM-dd-YYYY");
+        LevelUpRealEstates realEstates = new LevelUpRealEstates();
+        for (ApartmentResponse apartment : apartmentResponses) {
+            RealEstate realEstate = mapResponseXmlDto(apartment);
+            realEstates.getRealEstate().add(realEstate);
+        }
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.writerWithDefaultPrettyPrinter().writeValue(new File("apartments_" + date + ".xml"), realEstates);
+        File file = new File("apartments_" + date + ".xml");
+        assertNotNull(file);
+        String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+        if (mimeType == null) {
+            mimeType = "application/xml";
+        }
+        response.setContentType(mimeType);
+        response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
+        response.setContentLength((int) file.length());
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+        FileCopyUtils.copy(inputStream, response.getOutputStream());
+        File local = new File("apartments_" + date + ".xml");
         if (local.exists()) {
             FileUtils.forceDelete(local);
         }

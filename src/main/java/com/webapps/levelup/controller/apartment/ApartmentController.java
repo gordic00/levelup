@@ -4,6 +4,7 @@ import com.webapps.levelup.configuration.TokenAuth;
 import com.webapps.levelup.model.apartment.ApartmentResponse;
 import com.webapps.levelup.model.apartment.TypeEntity;
 import com.webapps.levelup.model.dto.ApartmentCreateDto;
+import com.webapps.levelup.model.dto.ApartmentReadDto;
 import com.webapps.levelup.model.dto.ApartmentUpdateDto;
 import com.webapps.levelup.model.dto.ListsDto;
 import com.webapps.levelup.service.apartment.ApartmentService;
@@ -82,37 +83,11 @@ public class ApartmentController {
      *
      * @return List<ApartmentResponse>
      */
-    @GetMapping(path = "/read-all-apartments")
+    @PostMapping(path = "/read-all-apartments")
     public ResponseEntity<Page<ApartmentResponse>> readAll(
-            @RequestParam(name = "type_ids", required = false)
-            List<Integer> typeIds,
-            @RequestParam(name = "location", required = false)
-            String location,
-            @RequestParam(name = "structure_ids", required = false)
-            List<Integer> structureIds,
-            @RequestParam(name = "price_from", required = false, defaultValue = "0")
-            Long priceFrom,
-            @RequestParam(name = "price_to", required = false, defaultValue = "999999999")
-            Long priceTo,
-            @RequestParam(name = "ad_code", required = false)
-            String adCode,
-            @RequestParam(name = "floor_ids", required = false)
-            List<Integer> floorIds,
-            @RequestParam(name = "furnished_ids", required = false)
-            List<Integer> furnishedIds,
-            @RequestParam(name = "heating_ids", required = false)
-            List<Integer> heatingIds,
-            @RequestParam(name = "construction_type_ids", required = false)
-            List<Integer> constructionTypeIds,
-            @RequestParam(name = "included_ids", required = false)
-            List<Integer> includedIds,
-            @RequestParam(name = "page", required = false, defaultValue = "0")
-            Integer page,
-            @RequestParam(name = "size", required = false, defaultValue = "10")
-            Integer size
-    ) {
-        return service.readAll(typeIds, location, structureIds, priceFrom, priceTo, adCode,
-                floorIds, furnishedIds, heatingIds, constructionTypeIds, includedIds, page, size);
+            @RequestBody ApartmentReadDto apartmentReadDto
+            ) {
+        return service.readAll(apartmentReadDto);
     }
 
     /**
@@ -158,16 +133,13 @@ public class ApartmentController {
      *
      * @param request     HttpServletRequest
      * @param response    HttpServletResponse
-     * @param apartmentId Integer
      * @throws IOException e
      */
     @TokenAuth
     @PostMapping(path = "download-xml")
     public void downloadXml(
             HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam("apartment_id")
-            Integer apartmentId) throws IOException {
-        service.downloadXml(response, apartmentId);
+            HttpServletResponse response) throws IOException {
+        service.downloadXml(response);
     }
 }
