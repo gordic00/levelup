@@ -180,6 +180,26 @@ public class ApartmentService {
         }
     }
 
+
+    /**
+     * Read all apartments by type code id and ad Code.
+     *
+     * @param typeCodeId Integer
+     * @param adCode String
+     * @param page Integer
+     * @param size Integer
+     * @return Page<ApartmentResponse>
+     */
+    public ResponseEntity<Page<ApartmentResponse>> readByTypeCodeAndAdCode
+            (Integer typeCodeId, String adCode, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<ApartmentResponse> responses = typeCodeId == null ? repoResponse.findAll(pageable) :
+                repoResponse.findByTypeEntity_IdAndAdCodeContainsIgnoreCase(typeCodeId, adCode, pageable);
+
+        return responses.getContent().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(responses);
+    }
+
     /*
     Read all apartments.
      */

@@ -1,6 +1,7 @@
 package com.webapps.levelup.controller.apartment;
 
 import com.webapps.levelup.configuration.TokenAuth;
+import com.webapps.levelup.model.apartement_images.ApartmentImagesResponse;
 import com.webapps.levelup.service.apartment.ApartmentImagesService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -54,6 +56,27 @@ public class ApartmentImagesController {
             MultipartFile[] images) {
         return service.uploadNewImageToAws(apartmentId, images);
     }
+
+    @TokenAuth
+    @GetMapping(path = "/read-all-by-apartment-id")
+    public ResponseEntity<List<ApartmentImagesResponse>> readAllByApartmentId(
+            HttpServletRequest request,
+            @NotNull
+            @RequestParam("apartment_id")
+            Integer apartmentId
+    ) {
+        return service.readAllImagesByApartmentId(apartmentId);
+    }
+
+    @TokenAuth
+    @PutMapping("/update-sorting-by-ids")
+    public ResponseEntity<String> updateSorting(
+            HttpServletRequest request,
+            @Valid @RequestBody List<ApartmentImagesResponse> apartmentImages
+    ) {
+        return service.updateSorting(apartmentImages);
+    }
+
 
     @TokenAuth
     @DeleteMapping(path = "/delete-by-id-list")

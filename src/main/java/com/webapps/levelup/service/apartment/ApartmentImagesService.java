@@ -162,9 +162,7 @@ public class ApartmentImagesService {
     public ResponseEntity<String> deleteAllByApartmentFromAws(Integer apartmentId) {
         List<ApartmentImagesResponse> images = repoResponseImage.findAllByApartmentId(apartmentId);
         List<Integer> ids = new ArrayList<>();
-        images.forEach(i -> {
-            ids.add(i.getId());
-        });
+        images.forEach(i -> ids.add(i.getId()));
         return deleteByListFromAws(ids);
     }
 
@@ -183,5 +181,43 @@ public class ApartmentImagesService {
             }
             localesDir.delete();
         }
+    }
+
+    /**
+     * Return All images by Apartment Id.
+     *
+     * @param apartmentId Integer
+     * @return List<ApartmentImagesResponse>
+     */
+    public ResponseEntity<List<ApartmentImagesResponse>> readAllImagesByApartmentId(Integer apartmentId) {
+        Optional<ApartmentResponse> apartment = repoApartmentResponse.findById(apartmentId);
+        if (apartment.isEmpty()) {
+            throw new CustomException("There is no Apartment in data base with given ID.");
+        }
+        List<ApartmentImagesResponse> response = repoResponseImage.findAllByApartmentId(apartmentId);
+
+        return response == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(response);
+    }
+
+    /**
+     * Update sorting.
+     *
+     * @param apartmentImages List<ApartmentImagesResponse>
+     * @return String
+     */
+    @Transactional
+    public ResponseEntity<String> updateSorting(List<ApartmentImagesResponse> apartmentImages) {
+        apartmentImages.forEach(image -> {
+            Optional<ApartmentImagesResponse> save = repoResponseImage.findById(image.getId());
+            if (save.isPresent()) {
+                try {
+                    save.get().setSorting(image.getSorting());
+                    repoResponseImage.save(save.get());
+                } catch (Exception e) {
+                    throw new CustomException(e.getMessage());
+                }
+            }
+        });
+        return ResponseEntity.ok("Successfully updated.");
     }
 }

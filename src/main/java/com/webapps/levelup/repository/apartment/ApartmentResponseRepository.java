@@ -20,6 +20,8 @@ public interface ApartmentResponseRepository extends CrudRepository<ApartmentRes
 
     Page<ApartmentResponse> findAll(Pageable pageable);
 
+    Page<ApartmentResponse> findByTypeEntity_IdAndAdCodeContainsIgnoreCase(Integer typeCodeId, String adCode, Pageable pageable);
+
     Page<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
             (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);

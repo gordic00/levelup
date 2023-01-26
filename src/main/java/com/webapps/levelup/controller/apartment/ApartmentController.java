@@ -79,6 +79,30 @@ public class ApartmentController {
     }
 
     /**
+     * Read all apartments by type code id and ad Code.
+     *
+     * @param typeCodeId Integer
+     * @param adCode String
+     * @param page Integer
+     * @param size Integer
+     * @return Page<ApartmentResponse>
+     */
+    @GetMapping(path = "/read-by-type-and-ad-code")
+    public ResponseEntity<Page<ApartmentResponse>> readByTypeCodeAndAdCode(
+            @RequestParam(value = "type_code_id", required = false)
+            Integer typeCodeId,
+            @RequestParam(value = "ad_code", required = false, defaultValue = "")
+            String adCode,
+            @RequestParam(value = "page", required = false, defaultValue = "0")
+            Integer page,
+            @RequestParam(value = "size", required = false, defaultValue = "10")
+            Integer size
+
+    ) {
+        return service.readByTypeCodeAndAdCode(typeCodeId, adCode, page, size);
+    }
+
+    /**
      * Return all Apartments.
      *
      * @return List<ApartmentResponse>

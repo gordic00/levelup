@@ -24,13 +24,14 @@ public class AmazonClient {
         String fileUrl;
         File file = convertMultiPartToFile(multipartFile);
         String fileName = generateFileName(multipartFile);
-        fileUrl = appProperties.getS3BucketDomain() + "/" + appProperties.getS3BucketName() + "/" + fileName;
+        fileUrl = appProperties.getS3BucketDomain() + fileName;
         try {
             uploadFileTos3bucket(fileName, file);
         } catch (Exception e) {
             file.delete();
             throw new CustomException(e.getMessage());
         }
+        file.delete();
         return fileUrl;
     }
 

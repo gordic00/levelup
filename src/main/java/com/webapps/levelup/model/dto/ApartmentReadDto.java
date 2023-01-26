@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.USE_DEFAULTS)
 public class ApartmentReadDto {
 
+    @NotNull
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
     @JsonProperty("type_ids")
@@ -30,12 +32,12 @@ public class ApartmentReadDto {
     @Schema(example = "1")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "1")
     @JsonProperty(value = "price_from")
-    private Long priceFrom;
+    private Long priceFrom = 0L;
 
     @Schema(example = "100")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "100")
     @JsonProperty(value = "price_to")
-    private Long priceTo;
+    private Long priceTo = 99999999L;
 
     @Schema(example = "721352")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "721352")

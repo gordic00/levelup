@@ -45,4 +45,10 @@ public class ApartmentImagesResponse {
     @JsonProperty("url")
     @Column(name = "path", nullable = false)
     private String path;
+
+    @Schema(example = "1")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "1")
+    @JsonProperty("sorting")
+    @Column(name = "sorting")
+    private Integer sorting;
 }
