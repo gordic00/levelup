@@ -1,0 +1,1661 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  ~ Copyright (c) 2022 SAP SE or an SAP affiliate company. All rights reserved.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <xs:element name="realEstates">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="realEstate" type="realEstate" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+        <xs:unique name="unique_id">
+            <xs:selector xpath="realEstate"/>
+            <xs:field xpath="id"/>
+        </xs:unique>
+    </xs:element>
+
+    <xs:complexType name="realEstate">
+        <xs:sequence>
+            <!--Product id, should be unique for XML and should not be changed on re-import-->
+            <xs:element name="id" type="xs:integer"/>
+
+            <!--Product category.-->
+            <!--Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                zemljiste-prodaja
+                garaze-i-parking-mesta-prodaja
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                hale-i-magacini-prodaja
+                ugostiteljski-objekti-prodaja
+                ostalo-prodaja
+            -->
+            <!--Categories for rent:
+                stanovi-iznajmljivanje
+                sobe
+                kuce-iznajmljivanje
+                zemljiste-iznajmljivanje
+                garaze-i-parking-mesta-iznajmljivanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                hale-i-magacini-izdavanje
+                ugostiteljski-objekti-izdavanje
+                ostalo-izdavanje
+            -->
+            <xs:element name="category">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="stanovi-prodaja"/>
+                        <xs:enumeration value="stanovi-iznajmljivanje"/>
+                        <xs:enumeration value="kuce-prodaja"/>
+                        <xs:enumeration value="kuce-iznajmljivanje"/>
+                        <xs:enumeration value="zemljiste-prodaja"/>
+                        <xs:enumeration value="zemljiste-iznajmljivanje"/>
+                        <xs:enumeration value="garaze-i-parking-mesta-prodaja"/>
+                        <xs:enumeration value="garaze-i-parking-mesta-iznajmljivanje"/>
+                        <xs:enumeration value="lokali-prodaja"/>
+                        <xs:enumeration value="lokali-izdavanje"/>
+                        <xs:enumeration value="poslovni-prostori-prodaja"/>
+                        <xs:enumeration value="poslovni-prostori-iznajmljivanje"/>
+                        <xs:enumeration value="poslovne-zgrade-prodaja"/>
+                        <xs:enumeration value="poslovne-zgrade-izdavanje"/>
+                        <xs:enumeration value="hale-i-magacini-prodaja"/>
+                        <xs:enumeration value="hale-i-magacini-izdavanje"/>
+                        <xs:enumeration value="ugostiteljski-objekti-prodaja"/>
+                        <xs:enumeration value="ugostiteljski-objekti-izdavanje"/>
+                        <xs:enumeration value="ostalo-prodaja"/>
+                        <xs:enumeration value="ostalo-izdavanje"/>
+                        <xs:enumeration value="sobe"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Product price in EUR currency.-->
+            <xs:element name="price">
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minInclusive value="1"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <!--County name.-->
+            <xs:element name="county_name" type="xs:string"/>
+            <!--City name.-->
+            <xs:element name="city_name" type="xs:string"/>
+            <!--City area name.-->
+            <xs:element name="city_area_name" type="xs:string" minOccurs="0"/>
+            <!--Quarter name.-->
+            <xs:element name="quarter_name" type="xs:string" minOccurs="0"/>
+
+            <!--Product address street name.-->
+            <xs:element name="address" type="xs:string" minOccurs="0"/>
+            <!--Product address street number.-->
+            <xs:element name="address_no" type="xs:string" minOccurs="0"/>
+            <!--Product address apartment.-->
+            <xs:element name="flat_no" type="xs:string" minOccurs="0"/>
+
+            <!--Product address longitude.-->
+            <xs:element name="longitude" type="xs:decimal" minOccurs="0"/>
+            <!--Product address latitude.-->
+            <xs:element name="latitude" type="xs:decimal" minOccurs="0"/>
+
+            <!--Product name in rs locale.-->
+            <xs:element name="portal_name_rs" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="100"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <!--Product name in en locale.-->
+            <xs:element name="portal_name_en" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:maxLength value="100"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- Product description in rs locale. If this property is blank, then empty string will be set as description.-->
+            <xs:element name="description_rs" type="xs:string" minOccurs="0"/>
+            <!-- Product description in en locale. If this property is blank, then empty string will be set as description.-->
+            <xs:element name="description_en" type="xs:string" minOccurs="0"/>
+
+            <!--Product phone.-->
+            <xs:element name="phone" type="xs:string" minOccurs="0"/>
+            <!--Product address email.-->
+            <xs:element name="email" type="xs:string" minOccurs="0"/>
+
+            <!--Youtube link.-->
+            <xs:element name="youtube_link" type="xs:string" minOccurs="0"/>
+
+            <!--Update product date.-->
+            <xs:element name="update" type="xs:dateTime" minOccurs="0"/>
+
+            <!--Product pictures. Allowed multiple photos. The photo with lowest "priority" will be set as main picture on product list page.-->
+            <xs:element name="photo" type="photo" minOccurs="0" maxOccurs="unbounded"/>
+
+
+            <!--Real estate area.-->
+            <!--Available units m2, ar. To keep compatibility all areas without units are treated like m2.-->
+            <!--Applies to categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja (m2)
+                zemljiste-prodaja (ar)
+                garaze-i-parking-mesta-prodaja (m2)
+                lokali-prodaja (m2)
+                poslovne-zgrade-prodaja (m2)
+                hale-i-magacini-prodaja (m2)
+                ugostiteljski-objekti-prodaja (m2)
+                ostalo-prodaja (m2)
+            Categories for rent:
+                stanovi-iznajmljivanje (m2)
+                zemljiste-iznajmljivanje (ar)
+                garaze-i-parking-mesta-prodaja (m2)
+                lokali-izdavanje (m2)
+                poslovne-zgrade-izdavanje (m2)
+                hale-i-magacini-izdavanje (m2)
+                ugostiteljski-objekti-izdavanje (m2)
+                ostalo-izdavanje (m2)
+                sobe (m2)
+            -->
+            <xs:element name="area" minOccurs="0" type="areaType"/>
+
+            <!--<unit is changed> Real estate object area in ar.-->
+            <!--Applies to categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+                poslovni-prostori-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+                poslovni-prostori-iznajmljivanje
+            -->
+            <xs:element name="object_area" minOccurs="0" type="areaType"/>
+
+            <!--Land area in square meters-->
+            <!--Applies to categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            -->
+            <xs:element name="land_area" minOccurs="0" type="areaType"/>
+
+            <!--Real estate type.-->
+            <!--Applicability of type by categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            Types:
+                <new> house_type_whole
+                <new> house_type_terraced
+                <new> house_type_horizontal
+                <new> house_type_vertical
+            =================================================
+            Categories for sale:
+                zemljiste-prodaja
+            Categories for rent:
+                zemljiste-iznajmljivanje
+            Types:
+                estate_type_building
+                estate_type_agricultural
+            =================================================
+            Categories for sale:
+                poslovne-zgrade-prodaja
+            Categories for rent:
+                poslovne-zgrade-izdavanje
+            Types:
+                business_buildings_type_whole
+                business_buildings_type_partial
+            =================================================
+            Categories for sale:
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                ugostiteljski-objekti-izdavanje
+            Types:
+                hospitality_type_bar
+                hospitality_type_restaurant
+                hospitality_type_fast_food
+                hospitality_type_playground
+                hospitality_type_hotel
+                hospitality_type_hostel
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+            Types:
+                <removed> estate_type_flat
+                <removed> estate_type_flat_in_house
+            =================================================
+            Categories for rent:
+                sobe
+            Types:
+                estate_type_room_in_flat
+                estate_type_room_in_house
+            -->
+            <xs:element name="type" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="house_type_whole"/>
+                        <xs:enumeration value="house_type_terraced"/>
+                        <xs:enumeration value="house_type_horizontal"/>
+                        <xs:enumeration value="house_type_vertical"/>
+                        <xs:enumeration value="estate_type_building"/>
+                        <xs:enumeration value="estate_type_agricultural"/>
+                        <xs:enumeration value="business_buildings_type_whole"/>
+                        <xs:enumeration value="business_buildings_type_partial"/>
+                        <xs:enumeration value="estate_type_room_in_flat"/>
+                        <xs:enumeration value="estate_type_room_in_house"/>
+                        <xs:enumeration value="hospitality_type_bar"/>
+                        <xs:enumeration value="hospitality_type_restaurant"/>
+                        <xs:enumeration value="hospitality_type_fast_food"/>
+                        <xs:enumeration value="hospitality_type_playground"/>
+                        <xs:enumeration value="hospitality_type_hotel"/>
+                        <xs:enumeration value="hospitality_type_hostel"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Agricultural Land Type.-->
+            <!--Applicability of type by categories
+            =================================================
+            Categories for sale:
+                zemljiste-prodaja
+            Categories for rent:
+                zemljiste-iznajmljivanje
+            Types:
+                agricultural_land_type_field
+                agricultural_land_type_orchard
+                agricultural_land_type_vineyard
+                agricultural_land_type_forest
+            =================================================
+            -->
+            <xs:element name="agricultural_land_type" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="agricultural_land_type_field"/>
+                        <xs:enumeration value="agricultural_land_type_orchard"/>
+                        <xs:enumeration value="agricultural_land_type_vineyard"/>
+                        <xs:enumeration value="agricultural_land_type_forest"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Building construction type-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                hale-i-magacini-prodaja
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljivanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                hale-i-magacini-izdavanje
+                ugostiteljski-objekti-izdavanje
+                sobe
+            Building construction type:
+                estate_type_construction_old
+                estate_type_construction_new
+                <removed> state_type_construction_under
+            =================================================
+            Categories for sale:
+                garaze-i-parking-mesta-prodaja
+            Categories for rent:
+                garaze-i-parking-mesta-iznajmljivanje
+            Construction type:
+                construction_type_prefabricated_garage
+                construction_type_masonry_garage
+                construction_type_parking_place
+            -->
+            <xs:element name="construction_type" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="estate_type_construction_old"/>
+                        <xs:enumeration value="estate_type_construction_new"/>
+                        <xs:enumeration value="construction_type_prefabricated_garage"/>
+                        <xs:enumeration value="construction_type_masonry_garage"/>
+                        <xs:enumeration value="construction_type_parking_place"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Registration.-->
+            <!--Available for categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                garaze-i-parking-mesta-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                hale-i-magacini-prodaja
+                ugostiteljski-objekti-prodaja
+            Filing:
+                filing_filed
+                filing_unbooked
+                <new> filing_in_legalization
+            =================================================
+            Categories for sale:
+                zemljiste-prodaja
+            Filing:
+                filing_filed
+                filing_unbooked
+            -->
+            <xs:element name="filing" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="filing_filed"/>
+                        <xs:enumeration value="filing_unbooked"/>
+                        <xs:enumeration value="filing_in_legalization"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Furnished.-->
+            <!--Available for categories
+            =================================================
+            Categories for sale:
+               <removed> stanovi-prodaja
+               <removed> kuce-prodaja
+               <removed> poslovni-prostori-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljivanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                ugostiteljski-objekti-izdavanje
+                sobe
+            Furnished:
+                furnished_full
+                furnished_semi
+                furnished_empty
+            -->
+            <xs:element name="furnished" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="furnished_full"/>
+                        <xs:enumeration value="furnished_semi"/>
+                        <xs:enumeration value="furnished_empty"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Number of bathrooms-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljivanje
+            -->
+            <xs:element name="bathrooms" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="bathrooms_1"/>
+                        <xs:enumeration value="bathrooms_2"/>
+                        <xs:enumeration value="bathrooms_3"/>
+                        <xs:enumeration value="bathrooms_after_3"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Heating-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljievanje
+                sobe
+             Heating:
+                land_heating_central
+                <new> land_heating_central_calorimeter
+                <removed> land_heating_electricity
+                land_heating_floor
+                land_heating_floors
+                land_heating_ta
+                <removed> land_heating_no
+                land_heating_gas
+                <removed> land_heating_electric_heaters
+                land_heating_marble_radiators
+                land_heating_norwegian_radiators
+                <removed> land_heating_general_boiler_room
+                land_heating_solid_fuel_stove
+                <removed> land_heating_other
+                <new> land_heating_heat_pump
+                <new> land_heating_tile_stove
+                <new> land_heating_air_condition
+            =================================================
+            Categories for sale:
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+            Categories for rent:
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+            Heating:
+                land_heating_central
+                land_heating_central_calorimeter
+                land_heating_floor
+                land_heating_floors
+                land_heating_ta
+                land_heating_gas
+                land_heating_marble_radiators
+                land_heating_norwegian_radiators
+                land_heating_heat_pump
+                land_heating_air_condition
+            =================================================
+            Categories for sale:
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                ugostiteljski-objekti-izdavanje
+            Heating:
+                land_heating_central
+                land_heating_central_calorimeter
+                land_heating_floors
+                land_heating_ta
+                land_heating_gas
+                land_heating_floor
+                land_heating_heat_pump
+                land_heating_norwegian_radiators
+                land_heating_tile_stove
+                land_heating_marble_radiators
+                land_heating_solid_fuel_stove
+            -->
+            <xs:element name="heating" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="land_heating_central"/>
+                        <xs:enumeration value="land_heating_central_calorimeter"/>
+                        <xs:enumeration value="land_heating_floor"/>
+                        <xs:enumeration value="land_heating_floors"/>
+                        <xs:enumeration value="land_heating_ta"/>
+                        <xs:enumeration value="land_heating_gas"/>
+                        <xs:enumeration value="land_heating_heat_pump"/>
+                        <xs:enumeration value="land_heating_norwegian_radiators"/>
+                        <xs:enumeration value="land_heating_tile_stove"/>
+                        <xs:enumeration value="land_heating_marble_radiators"/>
+                        <xs:enumeration value="land_heating_air_condition"/>
+                        <xs:enumeration value="land_heating_solid_fuel_stove"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+
+            <!--<new> PDV return-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+             PDV return:
+                yes
+                no
+            -->
+            <xs:element name="pdv_return" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="yes"/>
+                        <xs:enumeration value="no"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--<new> Condition -->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljievanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                ugostiteljski-objekti-izdavanje
+                sobe
+            Condition:
+                object_condition_original
+                object_condition_renovated
+                object_condition_lux
+                object_condition_for_renovation
+            -->
+            <xs:element name="condition" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="object_condition_original"/>
+                        <xs:enumeration value="object_condition_renovated"/>
+                        <xs:enumeration value="object_condition_lux"/>
+                        <xs:enumeration value="object_condition_for_renovation"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--<new> Payment Type -->
+            <!--Available for next categories
+            =================================================
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljievanje
+                zemljiste-iznajmljivanje
+                garaze-i-parking-mesta-iznajmljivanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                hale-i-magacini-izdavanje
+                ugostiteljski-objekti-izdavanje
+                ostalo-izdavanje
+                sobe
+            Payment Type:
+                payment_type_monthly
+                payment_type_3_months
+                payment_type_6_months
+                payment_type_12_months
+            -->
+            <xs:element name="payment_type" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="payment_type_monthly"/>
+                        <xs:enumeration value="payment_type_3_months"/>
+                        <xs:enumeration value="payment_type_6_months"/>
+                        <xs:enumeration value="payment_type_12_months"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--<new> Monthly Utilities -->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                kuce-iznajmljievanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                ugostiteljski-objekti-izdavanje
+                sobe
+            -->
+            <xs:element name="monthly_utilities" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minExclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Advertiser-->
+            <!--Available for categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                kuce-prodaja
+                garaze-i-parking-mesta-prodaja
+                lokali-prodaja
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                ostalo-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                lokali-izdavanje
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                ostalo-izdavanje
+             Advertiser:
+                advertiser_agency
+                advertiser_owner
+                advertiser_investor
+             =================================================
+             Categories for sale:
+                zemljiste-prodaja
+                hale-i-magacini-prodaja
+                ugostiteljski-objekti-prodaja
+             Categories for rent:
+                kuce-iznajmljivanje
+                zemljiste-iznajmljivanje
+                garaze-i-parking-mesta-iznajmljivanje
+                hale-i-magacini-izdavanje
+                ugostiteljski-objekti-izdavanje
+                sobe
+             Advertiser:
+                advertiser_agency
+                advertiser_owner
+            -->
+            <xs:element name="advertiser" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="advertiser_agency"/>
+                        <xs:enumeration value="advertiser_investor"/>
+                        <xs:enumeration value="advertiser_owner"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Floor.-->
+            <!--Applicability of floor numbers by categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                poslovni-prostori-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                poslovni-prostori-iznajmljivanje
+                sobe
+            Floors:
+                floor_basement
+                <removed> floor_low_ground_floor
+                <new> floor_half_basment
+                floor_high_floor
+                floor_ground_floor
+                floor_1
+                floor_2
+                floor_3
+                floor_4
+                floor_5
+                floor_6
+                floor_7
+                floor_8
+                floor_9
+                floor_10
+                floor_11
+                floor_12
+                floor_13
+                floor_14
+                floor_15
+                <new> floor_16
+                <new> floor_17
+                <new> floor_18
+                <new> floor_19
+                <new> floor_20
+                <new> floor_21
+                <new> floor_22
+                <new> floor_23
+                <new> floor_24
+                <new> floor_25
+                <new> floor_26
+                <new> floor_27
+                <new> floor_28
+                <new> floor_29
+                <new> floor_30
+                <new> floor_31
+                <new> floor_32
+                <new> floor_33
+                <new> floor_34
+                <new> floor_35
+                <new> floor_36
+                <new> floor_37
+                <new> floor_38
+                <new> floor_39
+                <new> floor_40
+                <new> floor_41
+                <new> floor_42
+                <new> floor_43
+                <new> floor_44
+                <new> floor_45
+                <removed> floor_after_15
+                <removed> floor_attic
+            =================================================
+            Categories for sale:
+                lokali-prodaja
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                lokali-izdavanje
+                ugostiteljski-objekti-izdavanje
+            Floors:
+                floor_basement
+                floor_half_basment
+                floor_ground_floor
+                floor_high_floor
+                floor_1
+                floor_2
+                floor_3
+                floor_4
+                floor_5
+                floor_6
+                floor_7
+                floor_8
+                floor_9
+                floor_10
+                floor_11
+                floor_12
+                floor_13
+                floor_14
+                floor_15
+                floor_16
+                floor_17
+                floor_18
+                floor_19
+                floor_20
+                floor_21
+                floor_22
+                floor_23
+                floor_24
+                floor_25
+            =================================================
+            Categories for sale:
+                poslovne-zgrade-prodaja
+                hale-i-magacini-prodaja
+            Categories for rent:
+                poslovne-zgrade-izdavanje
+                hale-i-magacini-izdavanje
+            Floors:
+                floor_pr
+                floor_pr_plus_one
+                floor_pr_plus_more
+            =================================================
+            Categories for rent
+            Floors:
+                floor_basement
+                floor_low_ground_floor
+                floor_high_floor
+                floor_ground_floor
+                floor_1
+                floor_2
+                floor_3
+                floor_4
+                floor_5
+                floor_6
+                floor_7
+                floor_8
+                floor_9
+                floor_10
+                floor_11
+                floor_12
+                floor_13
+                floor_14
+                floor_15
+                floor_attic
+            -->
+            <xs:element name="floor" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="floor_basement"/>
+                        <xs:enumeration value="floor_half_basment"/>
+                        <xs:enumeration value="floor_high_floor"/>
+                        <xs:enumeration value="floor_ground_floor"/>
+                        <xs:enumeration value="floor_1"/>
+                        <xs:enumeration value="floor_2"/>
+                        <xs:enumeration value="floor_3"/>
+                        <xs:enumeration value="floor_4"/>
+                        <xs:enumeration value="floor_5"/>
+                        <xs:enumeration value="floor_6"/>
+                        <xs:enumeration value="floor_7"/>
+                        <xs:enumeration value="floor_8"/>
+                        <xs:enumeration value="floor_9"/>
+                        <xs:enumeration value="floor_10"/>
+                        <xs:enumeration value="floor_11"/>
+                        <xs:enumeration value="floor_12"/>
+                        <xs:enumeration value="floor_13"/>
+                        <xs:enumeration value="floor_14"/>
+                        <xs:enumeration value="floor_15"/>
+                        <xs:enumeration value="floor_16"/>
+                        <xs:enumeration value="floor_17"/>
+                        <xs:enumeration value="floor_18"/>
+                        <xs:enumeration value="floor_19"/>
+                        <xs:enumeration value="floor_20"/>
+                        <xs:enumeration value="floor_21"/>
+                        <xs:enumeration value="floor_22"/>
+                        <xs:enumeration value="floor_23"/>
+                        <xs:enumeration value="floor_24"/>
+                        <xs:enumeration value="floor_25"/>
+                        <xs:enumeration value="floor_26"/>
+                        <xs:enumeration value="floor_27"/>
+                        <xs:enumeration value="floor_28"/>
+                        <xs:enumeration value="floor_29"/>
+                        <xs:enumeration value="floor_30"/>
+                        <xs:enumeration value="floor_31"/>
+                        <xs:enumeration value="floor_32"/>
+                        <xs:enumeration value="floor_33"/>
+                        <xs:enumeration value="floor_34"/>
+                        <xs:enumeration value="floor_35"/>
+                        <xs:enumeration value="floor_36"/>
+                        <xs:enumeration value="floor_37"/>
+                        <xs:enumeration value="floor_38"/>
+                        <xs:enumeration value="floor_39"/>
+                        <xs:enumeration value="floor_40"/>
+                        <xs:enumeration value="floor_41"/>
+                        <xs:enumeration value="floor_42"/>
+                        <xs:enumeration value="floor_43"/>
+                        <xs:enumeration value="floor_44"/>
+                        <xs:enumeration value="floor_45"/>
+
+                        <xs:enumeration value="floor_pr"/>
+                        <xs:enumeration value="floor_pr_plus_one"/>
+                        <xs:enumeration value="floor_pr_plus_more"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--<new> Number of Storeys.-->
+            <!--Applicability of number of storeys by categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+                poslovni-prostori-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+                poslovni-prostori-iznajmljivanje
+            Floors:
+                floor_basement
+                floor_half_basment
+                floor_high_floor
+                floor_ground_floor
+                floor_1
+                floor_2
+                floor_3
+                floor_4
+                floor_5
+                floor_6
+                floor_7
+                floor_8
+                floor_9
+                floor_10
+                floor_11
+                floor_12
+                floor_13
+                floor_14
+                floor_15
+                floor_16
+                floor_17
+                floor_18
+                floor_19
+                floor_20
+                floor_21
+                floor_22
+                floor_23
+                floor_24
+                floor_25
+                floor_26
+                floor_27
+                floor_28
+                floor_29
+                floor_30
+                floor_31
+                floor_32
+                floor_33
+                floor_34
+                floor_35
+                floor_36
+                floor_37
+                floor_38
+                floor_39
+                floor_40
+                floor_41
+                floor_42
+                floor_43
+                floor_44
+                floor_45
+            =================================================
+            Categories for sale:
+                lokali-prodaja
+                ugostiteljski-objekti-prodaja
+            Categories for rent:
+                lokali-izdavanje
+                ugostiteljski-objekti-izdavanje
+            Floors:
+                floor_basement
+                floor_half_basment
+                floor_ground_floor
+                floor_high_floor
+                floor_1
+                floor_2
+                floor_3
+                floor_4
+                floor_5
+                floor_6
+                floor_7
+                floor_8
+                floor_9
+                floor_10
+                floor_11
+                floor_12
+                floor_13
+                floor_14
+                floor_15
+                floor_16
+                floor_17
+                floor_18
+                floor_19
+                floor_20
+                floor_21
+                floor_22
+                floor_23
+                floor_24
+                floor_25
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            Floors:
+                floors_ground_floor
+                floors_floor
+            =================================================
+            -->
+            <xs:element name="number_storeys" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="floors_ground_floor"/>
+                        <xs:enumeration value="floors_floor"/>
+                        <xs:enumeration value="floor_basement"/>
+                        <xs:enumeration value="floor_half_basment"/>
+                        <xs:enumeration value="floor_high_floor"/>
+                        <xs:enumeration value="floor_ground_floor"/>
+                        <xs:enumeration value="floor_1"/>
+                        <xs:enumeration value="floor_2"/>
+                        <xs:enumeration value="floor_3"/>
+                        <xs:enumeration value="floor_4"/>
+                        <xs:enumeration value="floor_5"/>
+                        <xs:enumeration value="floor_6"/>
+                        <xs:enumeration value="floor_7"/>
+                        <xs:enumeration value="floor_8"/>
+                        <xs:enumeration value="floor_9"/>
+                        <xs:enumeration value="floor_10"/>
+                        <xs:enumeration value="floor_11"/>
+                        <xs:enumeration value="floor_12"/>
+                        <xs:enumeration value="floor_13"/>
+                        <xs:enumeration value="floor_14"/>
+                        <xs:enumeration value="floor_15"/>
+                        <xs:enumeration value="floor_16"/>
+                        <xs:enumeration value="floor_17"/>
+                        <xs:enumeration value="floor_18"/>
+                        <xs:enumeration value="floor_19"/>
+                        <xs:enumeration value="floor_20"/>
+                        <xs:enumeration value="floor_21"/>
+                        <xs:enumeration value="floor_22"/>
+                        <xs:enumeration value="floor_23"/>
+                        <xs:enumeration value="floor_24"/>
+                        <xs:enumeration value="floor_25"/>
+                        <xs:enumeration value="floor_26"/>
+                        <xs:enumeration value="floor_27"/>
+                        <xs:enumeration value="floor_28"/>
+                        <xs:enumeration value="floor_29"/>
+                        <xs:enumeration value="floor_30"/>
+                        <xs:enumeration value="floor_31"/>
+                        <xs:enumeration value="floor_32"/>
+                        <xs:enumeration value="floor_33"/>
+                        <xs:enumeration value="floor_34"/>
+                        <xs:enumeration value="floor_35"/>
+                        <xs:enumeration value="floor_36"/>
+                        <xs:enumeration value="floor_37"/>
+                        <xs:enumeration value="floor_38"/>
+                        <xs:enumeration value="floor_39"/>
+                        <xs:enumeration value="floor_40"/>
+                        <xs:enumeration value="floor_41"/>
+                        <xs:enumeration value="floor_42"/>
+                        <xs:enumeration value="floor_43"/>
+                        <xs:enumeration value="floor_44"/>
+                        <xs:enumeration value="floor_45"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Additional information.-->
+            <!--Applicability additional to categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+            Additionals:
+            <replaced>
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_not_top_floor
+                realestate_additional_not_ap_in_house
+                realestate_additional_urgent
+                realestate_additional_mortgage
+                realestate_additional_salonac
+                realestate_additional_duplex
+                realestate_additional_penthouse
+                realestate_additional_potkrovlje
+                realestate_additional_deposite
+                realestate_additional_for_smokers
+                realestate_additional_for_non_smokers
+                realestate_additional_for_students
+                realestate_additional_for_workers
+                realestate_additional_pets_allowed
+                realestate_additional_stan_for_day
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Additionals:
+            <replaced>
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                kuce-iznajmljivanje
+            Additionals:
+            <replaced>
+                realestate_additional_house_for_day
+                realestate_additional_ready_to_move_in
+                realestate_additional_deposite
+                realestate_additional_for_smokers
+                realestate_additional_for_non_smokers
+                realestate_additional_for_workers
+                realestate_additional_pets_allowed
+                realestate_additional_as_business_space
+            =================================================
+            Categories for sale:
+                zemljiste-prodaja
+            Additionals:
+            <replaced>
+                realestate_additional_construction_permitted
+                realestate_additional_construction_started
+                realestate_additional_divisible
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                zemljiste-iznajmljivanje
+            Additionals:
+            <replaced>
+                realestate_additional_deposite
+                realestate_additional_construction_permitted
+                realestate_additional_construction_started
+            =================================================
+            Categories for sale:
+                garaze-i-parking-mesta-prodaja
+            Additionals:
+            <replaced>
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                garaze-i-parking-mesta-iznajmljivanje
+            Additionals:
+            <replaced>
+                realestate_additional_deposite
+            =================================================
+            Categories for sale:
+                lokali-prodaja
+            Additionals:
+            <replaced>
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                lokali-izdavanje
+            Additionals:
+            <replaced>
+                realestate_additional_ready_to_move_in
+                realestate_additional_deposite
+                realestate_additional_equipped
+            =================================================
+            Categories for sale:
+                poslovni-prostori-prodaja
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_open_space
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                poslovni-prostori-iznajmljivanje
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_deposite
+                realestate_additional_equipped
+                realestate_additional_open_space
+            =================================================
+            Categories for sale:
+                poslovne-zgrade-prodaja
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_open_space
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                poslovne-zgrade-izdavanje
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_deposite
+                realestate_additional_equipped
+                realestate_additional_open_space
+            =================================================
+            Categories for sale:
+                hale-i-magacini-prodaja
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                hale-i-magacini-izdavanje
+            Additionals:
+                realestate_additional_free_to_use
+                realestate_additional_deposite
+            =================================================
+            Categories for sale:
+                ugostiteljski-objekti-prodaja
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_equipped
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                ugostiteljski-objekti-izdavanje
+            Additionals:
+                realestate_additional_free_to_use
+                realestate_additional_deposite
+                realestate_additional_equipped
+            =================================================
+            Categories for rent:
+                ostalo-prodaja
+            Additionals:
+                realestate_additional_ready_to_move_in
+                realestate_additional_replacement
+                realestate_additional_urgent
+                realestate_additional_mortgage
+            =================================================
+            Categories for rent:
+                ostalo-izdavanje
+            Additionals:
+                realestate_additional_deposite
+            =================================================
+            Categories for rent
+                sobe
+            Additionals:
+                realestate_additional_room_for_day
+                realestate_additional_ready_to_move_in
+                realestate_additional_deposite
+                realestate_additional_for_smokers
+                realestate_additional_for_non_smokers
+                realestate_additional_for_students
+                realestate_additional_for_workers
+                realestate_additional_pets_allowed
+                realestate_additional_potkrovlje
+            -->
+            <xs:element name="additional" minOccurs="0" maxOccurs="unbounded">
+                <xs:simpleType>
+                    <xs:list>
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="realestate_additional_ready_to_move_in"/>
+                                <xs:enumeration value="realestate_additional_replacement"/>
+                                <xs:enumeration value="realestate_additional_not_top_floor"/>
+                                <xs:enumeration value="realestate_additional_not_ap_in_house"/>
+                                <xs:enumeration value="realestate_additional_urgent"/>
+                                <xs:enumeration value="realestate_additional_mortgage"/>
+                                <xs:enumeration value="realestate_additional_salonac"/>
+                                <xs:enumeration value="realestate_additional_duplex"/>
+                                <xs:enumeration value="realestate_additional_penthouse"/>
+                                <xs:enumeration value="realestate_additional_potkrovlje"/>
+                                <xs:enumeration value="realestate_additional_deposite"/>
+                                <xs:enumeration value="realestate_additional_for_smokers"/>
+                                <xs:enumeration value="realestate_additional_for_non_smokers"/>
+                                <xs:enumeration value="realestate_additional_for_students"/>
+                                <xs:enumeration value="realestate_additional_for_workers"/>
+                                <xs:enumeration value="realestate_additional_pets_allowed"/>
+                                <xs:enumeration value="realestate_additional_stan_for_day"/>
+                                <xs:enumeration value="realestate_additional_house_for_day"/>
+                                <xs:enumeration value="realestate_additional_as_business_space"/>
+                                <xs:enumeration value="realestate_additional_construction_permitted"/>
+                                <xs:enumeration value="realestate_additional_construction_started"/>
+                                <xs:enumeration value="realestate_additional_divisible"/>
+                                <xs:enumeration value="realestate_additional_equipped"/>
+                                <xs:enumeration value="realestate_additional_open_space"/>
+                                <xs:enumeration value="realestate_additional_free_to_use"/>
+                                <xs:enumeration value="realestate_additional_room_for_day"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:list>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- <new> Included
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+            Included:
+                realestate_included_terrace
+                realestate_included_loggia
+                realestate_included_french_balcony
+                realestate_included_garage
+                realestate_included_parking_spot
+                realestate_included_elevator
+                realestate_included_basement
+                realestate_included_pantry
+                realestate_included_air_conditioning
+                realestate_included_hot_water
+                realestate_included_garden
+                realestate_included_phone
+                realestate_included_katv
+                realestate_included_internet
+                realestate_included_intercom
+                realestate_included_video_surveillance
+                realestate_included_fireplace
+                realestate_included_sauna
+                realestate_included_swimming_pool
+                realestate_included_gym
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            Included:
+                realestate_included_water
+                realestate_included_sewage
+                realestate_included_septic_tank
+                realestate_included_electricity
+                realestate_included_ancillary_facilities
+                realestate_included_terrace
+                realestate_included_loggia
+                realestate_included_french_balcony
+                realestate_included_garage
+                realestate_included_parking_spot
+                realestate_included_elevator
+                realestate_included_basement
+                realestate_included_pantry
+                realestate_included_air_conditioning
+                realestate_included_phone
+                realestate_included_katv
+                realestate_included_internet
+                realestate_included_intercom
+                realestate_included_video_surveillance
+                realestate_included_fireplace
+                realestate_included_sauna
+                realestate_included_swimming_pool
+                realestate_included_gym
+            =================================================
+            Categories for sale:
+                zemljiste-prodaja
+            Categories for rent:
+                zemljiste-iznajmljivanje
+            Included:
+                land_service_city_gas
+                land_service_city_water
+                land_service_city_sewer
+                land_service_phone
+                land_service_city_road
+                land_service_city_electricity
+                realestate_included_septic_tank
+            =================================================
+            Categories for sale:
+                garaze-i-parking-mesta-prodaja
+            Categories for rent:
+                garaze-i-parking-mesta-iznajmljivanje
+            Included:
+                realestate_included_video_surveillance
+                realestate_included_remote_opening
+                realestate_included_water
+                realestate_included_electricity
+            =================================================
+            Categories for sale:
+                lokali-prodaja
+            Categories for rent:
+                lokali-izdavanje
+            Included:
+                realestate_included_air_conditioning
+                realestate_included_internet
+                realestate_included_phone
+                realestate_included_shop_window
+                realestate_included_video_surveillance
+                realestate_included_parking_spot
+                realestate_included_sanitary_facilities
+                realestate_included_water
+            =================================================
+            Categories for sale:
+                poslovni-prostori-prodaja
+            Categories for rent:
+                poslovni-prostori-iznajmljivanje
+            Included:
+                realestate_included_garage
+                realestate_included_parking_spot
+                realestate_included_security
+                realestate_included_computer_network
+                realestate_included_video_surveillance
+                realestate_included_air_conditioning
+            =================================================
+            Categories for sale:
+                poslovne-zgrade-prodaja
+             Categories for rent:
+                poslovne-zgrade-izdavanje
+            Additionals:
+                realestate_included_garage
+                realestate_included_parking_spot
+                realestate_included_security
+                realestate_included_computer_network
+                realestate_included_video_surveillance
+                realestate_included_air_conditioning
+            =================================================
+            Categories for sale:
+                hale-i-magacini-prodaja
+             Categories for rent:
+                hale-i-magacini-izdavanje
+            Additionals:
+                realestate_included_truck_driveway
+                realestate_included_water
+                realestate_included_electricity
+                realestate_included_sanitary_facilities
+                realestate_included_heating
+                realestate_included_air_conditioning
+                realestate_included_parking_spot
+                realestate_included_video_surveillance
+            =================================================
+            Categories for sale:
+                ugostiteljski-objekti-prodaja
+             Categories for rent:
+                ugostiteljski-objekti-izdavanje
+            Additionals:
+                realestate_included_terrace
+                realestate_included_garden
+                realestate_included_parking
+                realestate_included_air_conditioning
+                realestate_included_video_surveillance
+                realestate_included_fireplace
+                realestate_included_swimming_pool
+                realestate_included_spa
+            =================================================
+             Categories for rent:
+                sobe
+            Additionals:
+                realestate_included_terrace
+                realestate_included_loggia
+                realestate_included_french_balcony
+                realestate_included_air_conditioning
+                realestate_included_elevator
+                realestate_included_hot_water
+                realestate_included_phone
+                realestate_included_katv
+                realestate_included_internet
+                realestate_included_separate_entrance
+            -->
+            <xs:element name="included" minOccurs="0" maxOccurs="unbounded">
+                <xs:simpleType>
+                    <xs:list>
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                                <xs:enumeration value="realestate_included_terrace"/>
+                                <xs:enumeration value="realestate_included_loggia"/>
+                                <xs:enumeration value="realestate_included_french_balcony"/>
+                                <xs:enumeration value="realestate_included_garage"/>
+                                <xs:enumeration value="realestate_included_parking_spot"/>
+                                <xs:enumeration value="realestate_included_elevator"/>
+                                <xs:enumeration value="realestate_included_basement"/>
+                                <xs:enumeration value="realestate_included_pantry"/>
+                                <xs:enumeration value="realestate_included_air_conditioning"/>
+                                <xs:enumeration value="realestate_included_hot_water"/>
+                                <xs:enumeration value="realestate_included_garden"/>
+                                <xs:enumeration value="realestate_included_phone"/>
+                                <xs:enumeration value="realestate_included_katv"/>
+                                <xs:enumeration value="realestate_included_internet"/>
+                                <xs:enumeration value="realestate_included_intercom"/>
+                                <xs:enumeration value="realestate_included_video_surveillance"/>
+                                <xs:enumeration value="realestate_included_fireplace"/>
+                                <xs:enumeration value="realestate_included_sauna"/>
+                                <xs:enumeration value="realestate_included_swimming_pool"/>
+                                <xs:enumeration value="realestate_included_gym"/>
+                                <xs:enumeration value="realestate_included_water"/>
+                                <xs:enumeration value="realestate_included_sewage"/>
+                                <xs:enumeration value="realestate_included_septic_tank"/>
+                                <xs:enumeration value="realestate_included_electricity"/>
+                                <xs:enumeration value="realestate_included_ancillary_facilities"/>
+                                <xs:enumeration value="land_service_city_gas"/>
+                                <xs:enumeration value="land_service_city_water"/>
+                                <xs:enumeration value="land_service_city_sewer"/>
+                                <xs:enumeration value="land_service_phone"/>
+                                <xs:enumeration value="land_service_city_road"/>
+                                <xs:enumeration value="land_service_city_electricity"/>
+                                <xs:enumeration value="realestate_included_remote_opening"/>
+                                <xs:enumeration value="realestate_included_shop_window"/>
+                                <xs:enumeration value="realestate_included_sanitary_facilities"/>
+                                <xs:enumeration value="realestate_included_security"/>
+                                <xs:enumeration value="realestate_included_computer_network"/>
+                                <xs:enumeration value="realestate_included_truck_driveway"/>
+                                <xs:enumeration value="realestate_included_heating"/>
+                                <xs:enumeration value="realestate_included_spa"/>
+                                <xs:enumeration value="realestate_included_separate_entrance"/>
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:list>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Estate structure.-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                stanovi-prodaja
+            Categories for rent:
+                stanovi-iznajmljivanje
+            Estate structure:
+                large_studio_estate_structure
+                one_room_estate_structure
+                one_and_half_room_estate_structure
+                two_rooms_estate_structure
+                two_and_half_room_estate_structure
+                three_rooms_estate_structure
+                three_and_half_room_estate_structure
+                four_rooms_estate_structure
+                four_and_half_room_estate_structure
+                five_rooms_estate_structure
+                more_then_five_rooms_estate_structure
+            =================================================
+            Categories for rent:
+                sobe
+            Estate structure:
+                one_bed_estate_structure
+                two_bed_estate_structure
+                three_bed_estate_structure
+                four_and_more_bed_estate_structure
+            -->
+            <xs:element name="structure" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="large_studio_estate_structure"/>
+                        <xs:enumeration value="one_room_estate_structure"/>
+                        <xs:enumeration value="one_and_half_room_estate_structure"/>
+                        <xs:enumeration value="two_rooms_estate_structure"/>
+                        <xs:enumeration value="two_and_half_room_estate_structure"/>
+                        <xs:enumeration value="three_rooms_estate_structure"/>
+                        <xs:enumeration value="three_and_half_room_estate_structure"/>
+                        <xs:enumeration value="four_rooms_estate_structure"/>
+                        <xs:enumeration value="four_and_half_room_estate_structure"/>
+                        <xs:enumeration value="five_rooms_estate_structure"/>
+                        <xs:enumeration value="more_then_five_rooms_estate_structure"/>
+                        <xs:enumeration value="one_bed_estate_structure"/>
+                        <xs:enumeration value="two_bed_estate_structure"/>
+                        <xs:enumeration value="three_bed_estate_structure"/>
+                        <xs:enumeration value="four_and_more_bed_estate_structure"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!-- <new> Number of rooms.-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            Number of rooms:
+                number_rooms_one_room
+                number_rooms_two_rooms
+                number_rooms_three_rooms
+                number_rooms_four_rooms
+                number_rooms_five_or_more_rooms
+            -->
+            <xs:element name="number_rooms" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="number_rooms_one_room"/>
+                        <xs:enumeration value="number_rooms_two_rooms"/>
+                        <xs:enumeration value="number_rooms_three_rooms"/>
+                        <xs:enumeration value="number_rooms_four_rooms"/>
+                        <xs:enumeration value="number_rooms_five_or_more_rooms"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Facility Purpose-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            Categories for rent:
+                kuce-iznajmljivanje
+            -->
+            <xs:element name="facility_purpose" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="facility_purpose_cottage"/>
+                        <xs:enumeration value="facility_purpose_residential_business_house"/>
+                        <xs:enumeration value="facility_purpose_rural_household"/>
+                        <xs:enumeration value="facility_purpose_farm"/>
+                        <xs:enumeration value="facility_purpose_villa"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Construction Method-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                kuce-prodaja
+            -->
+            <xs:element name="construction_method" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="construction_method_masonry"/>
+                        <xs:enumeration value="construction_method_prefabricated"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Number Phone Lines-->
+            <!--Available for next categories
+            =================================================
+            Categories for rent:
+                lokali-izdavanje
+            -->
+            <xs:element name="number_phone_lines" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:int">
+                        <xs:minExclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Number Offices-->
+            <!--Available for next categories
+            =================================================
+            Categories for sale:
+                poslovni-prostori-prodaja
+                poslovne-zgrade-prodaja
+                hale-i-magacini-prodaja
+            Categories for rent:
+                poslovni-prostori-iznajmljivanje
+                poslovne-zgrade-izdavanje
+                hale-i-magacini-izdavanje
+            -->
+            <xs:element name="offices" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:int">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+
+            <!--Usage-->
+            <!--Available for next categories
+            =================================================
+            Categories for rent:
+                sobe
+            -->
+            <xs:element name="usage" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="sobe_usage_shared_bathroom"/>
+                        <xs:enumeration value="sobe_usage_shared_kitchen"/>
+                        <xs:enumeration value="sobe_usage_private_bathroom"/>
+                        <xs:enumeration value="sobe_usage_private_kitchen"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!--Product pictures. The photo with lowest "priority" will be set as main picture on product list page.-->
+    <xs:complexType name="photo">
+        <xs:all>
+            <!--Photo url-->
+            <xs:element name="url" type="xs:string" minOccurs="0"/>
+            <!--Photo priority. The photo with lowest "priority" will be set as main picture on product list page.-->
+            <xs:element name="priority" type="xs:integer" minOccurs="0"/>
+            <!--Last update photo time. Recommended to use timestamp attribute for improving performance of import.
+            Photos that were not updated since last import will not be downloaded.-->
+            <xs:element name="timestamp" type="xs:long" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="areaType">
+        <xs:simpleContent>
+            <xs:extension base="area_unit_values">
+                <xs:attribute name="unit" type="area_units"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="area_unit_values">
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="area_units">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="m2"/>
+            <xs:enumeration value="ar"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -1,0 +1,1 @@
+<realEstate><id>{id}</id><category>{category}</category><price>{price}</price><county_name>{county_name}</county_name><city_name>{city_name}</city_name><city_area_name>{city_area_name}</city_area_name><address>{address}</address><address_no>{address_no}</address_no><description_rs>{description_rs}</description_rs>{description_en}

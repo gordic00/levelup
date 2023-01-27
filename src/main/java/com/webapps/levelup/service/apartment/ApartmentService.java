@@ -1,13 +1,12 @@
 package com.webapps.levelup.service.apartment;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.webapps.levelup.configuration.ModelMapperConfig;
 import com.webapps.levelup.exception.CustomException;
 import com.webapps.levelup.helper.DateHelper;
+import com.webapps.levelup.helper.FileHelper;
 import com.webapps.levelup.helper.TokenHelper;
+import com.webapps.levelup.model.apartement_images.ApartmentImagesResponse;
 import com.webapps.levelup.model.apartment.*;
-import com.webapps.levelup.model.apartment_xml.RealEstate;
-import com.webapps.levelup.model.apartment_xml.LevelUpRealEstates;
 import com.webapps.levelup.model.dto.*;
 import com.webapps.levelup.repository.apartment.*;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +23,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import java.io.*;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
@@ -185,13 +188,13 @@ public class ApartmentService {
      * Read all apartments by type code id and ad Code.
      *
      * @param typeCodeId Integer
-     * @param adCode String
-     * @param page Integer
-     * @param size Integer
+     * @param adCode     String
+     * @param page       Integer
+     * @param size       Integer
      * @return Page<ApartmentResponse>
      */
     public ResponseEntity<Page<ApartmentResponse>> readByTypeCodeAndAdCode
-            (Integer typeCodeId, String adCode, Integer page, Integer size) {
+    (Integer typeCodeId, String adCode, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
 
         Page<ApartmentResponse> responses = typeCodeId == null ? repoResponse.findAll(pageable) :
@@ -400,14 +403,14 @@ public class ApartmentService {
             throw new CustomException("There are no apartments.");
         }
         String date = DateHelper.currentDate("MM-dd-YYYY");
-        LevelUpRealEstates realEstates = new LevelUpRealEstates();
-        for (ApartmentResponse apartment : apartmentResponses) {
-            RealEstate realEstate = mapResponseXmlDto(apartment);
-            realEstates.getRealEstate().add(realEstate);
-        }
-        XmlMapper xmlMapper = new XmlMapper();
-        xmlMapper.writerWithDefaultPrettyPrinter().writeValue(new File("apartments_" + date + ".xml"), realEstates);
+        String xmlFile = prepareXml(apartmentResponses);
+
         File file = new File("apartments_" + date + ".xml");
+        FileWriter fw = new FileWriter(file, true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fw);
+        bufferedWriter.write(xmlFile);
+        bufferedWriter.close();
+
         assertNotNull(file);
         String mimeType = URLConnection.guessContentTypeFromName(file.getName());
         if (mimeType == null) {
@@ -424,20 +427,129 @@ public class ApartmentService {
         }
     }
 
-    /*
-    Prepare XML DTO.
-     */
-    private RealEstate mapResponseXmlDto(ApartmentResponse apartment) {
-        RealEstate responseXml = mmc.map(apartment, RealEstate.class);
-        responseXml.setBathrooms_code(apartment.getBathrooms().getCode());
-        responseXml.setCondition_code(apartment.getConditionEntity2().getCode());
-        responseXml.setFloor_code(apartment.getFloorEntity().getCode());
-        responseXml.setNumberStoreys_code(apartment.getNumberStoreys().getCode());
-        responseXml.setFurnished_code(apartment.getFurnished().getCode());
-        responseXml.setStructure_code(apartment.getStructure().getCode());
-        responseXml.setAdvertiser_code(apartment.getAdvertiser().getCode());
-        responseXml.setConstructionType_code(apartment.getConstructionType().getCode());
-        responseXml.setPaymentType_code(apartment.getPaymentType().getCode());
-        return responseXml;
+    private String prepareXml(List<ApartmentResponse> apartmentResponses) {
+        StringBuilder xmlFile = new StringBuilder(Objects.requireNonNull(FileHelper.readResource("xml_validator/templateXml.txt")));
+        for (ApartmentResponse apartment : apartmentResponses) {
+            String xmlContent = FileHelper.readResource("xml_validator/templateXmlContent.txt");
+            assert xmlContent != null;
+            xmlContent = populateFirstPartXml(xmlContent, apartment);
+            xmlContent = populatePhotos(xmlContent, apartment);
+            xmlContent = populateSecondPartXml(xmlContent, apartment);
+            xmlContent = populateHeating(xmlContent, apartment);
+            xmlContent = populateThirdPartXml(xmlContent, apartment);
+            xmlContent = populateLists(xmlContent, apartment);
+            xmlContent = populateForthPartXml(xmlContent, apartment);
+            xmlContent = xmlContent + "</realEstate>";
+            xmlFile.append(xmlContent);
+        }
+        xmlFile.append("</realEstates>");
+        return xmlFile.toString();
+    }
+
+    private String populateLists(String xmlContent, ApartmentResponse apartment) {
+
+        if (apartment.getAdditional() != null) {
+            for (AdditionalEntity additional : apartment.getAdditional()) {
+                xmlContent = xmlContent + "<additional>" + additional.getCode() + "</additional>";
+            }
+        }
+        if (apartment.getIncluded() != null) {
+            for (IncludedEntity included : apartment.getIncluded()) {
+                xmlContent = xmlContent + "<included>" + included.getCode() + "</included>";
+            }
+        }
+        return xmlContent;
+    }
+
+    private String populateHeating(String xmlContent, ApartmentResponse apartment) {
+        if (apartment.getHeating() != null) {
+            xmlContent = xmlContent + "<heating>" + apartment.getHeating().stream().toList().get(0).getCode() + "</heating>";
+//            for (HeatingEntity heating : apartment.getHeating()) {
+//                xmlContent = xmlContent + "<heating>" + heating.getCode() + "</heating>";
+//            }
+        }
+        return xmlContent;
+    }
+
+    private String populatePhotos(String xmlContent, ApartmentResponse apartment) {
+        if (apartment.getApartmentImagesEntities() != null) {
+            for (ApartmentImagesResponse image : apartment.getApartmentImagesEntities()) {
+                xmlContent = xmlContent + "<photo>" + image.getPath() + "</photo>";
+            }
+        }
+        return xmlContent;
+    }
+
+    private String populateFirstPartXml(String xmlContent, ApartmentResponse apartment) {
+        return xmlContent
+                .replace("{id}", nullR(apartment.getId()).toString())
+                .replace("{category}", "stanovi-iznajmljivanje")
+                .replace("{price}", nullR(apartment.getMonthlyUtilities()).toString())
+                .replace("{county_name}", "Srbija")
+                .replace("{city_name}", nullR(apartment.getCity()).toString())
+                .replace("{city_area_name}", nullR(apartment.getMunicipality()).toString())
+                .replace("{address}", nullR(apartment.getAddress()).toString())
+                .replace("{address_no}", nullR(apartment.getAddressNo()).toString())
+                .replace("{description_rs}", nullR(apartment.getDescriptionSr()).toString())
+                .replace("{description_en}", apartment.getDescriptionEn() == null ? "" : "<description_en>" + apartment.getDescriptionEn() + "</description_en>");
+    }
+
+    private String populateSecondPartXml(String xmlContent, ApartmentResponse apartment) {
+        return xmlContent + "<area>" + nullR(apartment.getQuadrature()).toString() + "</area>" +
+                "<construction_type>" + nullR(apartment.getConstructionType().getCode()).toString() + "</construction_type>" +
+                "<furnished>" + nullR(apartment.getFurnished().getCode()).toString() + "</furnished>" +
+                "<bathrooms>" + nullR(apartment.getBathrooms().getCode()).toString() + "</bathrooms>";
+    }
+
+    private String populateThirdPartXml(String xmlContent, ApartmentResponse apartment) {
+        return xmlContent + "<condition>" + nullR(apartment.getConditionEntity().getCode()).toString() + "</condition>" +
+                "<payment_type>" + nullR(apartment.getPaymentType().getCode()).toString() + "</payment_type>" +
+                "<monthly_utilities>" + nullR(apartment.getMonthlyUtilities()).toString() + "</monthly_utilities>" +
+                "<advertiser>" + nullR(apartment.getAdvertiser().getCode()).toString() + "</advertiser>" +
+                "<floor>" + nullR(apartment.getFloorEntity().getCode()).toString() + "</floor>" +
+                "<number_storeys>" + nullR(apartment.getNumberStoreys().getCode()).toString() + "</number_storeys>";
+
+    }
+
+    private String populateForthPartXml(String xmlContent, ApartmentResponse apartment) {
+        xmlContent = xmlContent + "<structure>" + nullR(apartment.getStructure().getCode()).toString() + "</structure>";
+        if (apartment.getRooms() != null) {
+            switch (apartment.getRooms()) {
+                case 2 -> xmlContent = xmlContent + "<number_rooms>number_rooms_two_rooms</number_rooms>";
+                case 3 -> xmlContent = xmlContent + "<number_rooms>number_rooms_three_rooms</number_rooms>";
+                case 4 -> xmlContent = xmlContent + "<number_rooms>number_rooms_four_rooms</number_rooms>";
+                case 5 -> xmlContent = xmlContent + "<number_rooms>number_rooms_five_or_more_rooms</number_rooms>";
+                default -> xmlContent = xmlContent + "<number_rooms>number_rooms_one_room</number_rooms>";
+            }
+        }
+        return xmlContent;
+    }
+
+    private Object nullR(Object obj) {
+        return obj == null ? "" : obj;
+    }
+
+    public Boolean validateXMLSchema(MultipartFile xmlFile) {
+        try {
+            SchemaFactory factory =
+                    SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            File local = new File(Objects.requireNonNull(xmlFile.getOriginalFilename()));
+            FileOutputStream fos = new FileOutputStream(local);
+            fos.write(xmlFile.getBytes());
+            fos.close();
+            Schema schema = factory.newSchema(new File("src/main/resources/xml_validator/custom-xml-format-new.xsd"));
+            Validator validator = schema.newValidator();
+            validator.validate(new StreamSource(local));
+            if (local.exists()) {
+                FileUtils.forceDelete(local);
+            }
+        } catch (IOException e) {
+            System.out.println("Exception: " + e.getMessage());
+            return false;
+        } catch (SAXException e1) {
+            System.out.println("SAX Exception: " + e1.getMessage());
+            return false;
+        }
+        return true;
     }
 }

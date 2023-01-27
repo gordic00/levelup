@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,9 +83,9 @@ public class ApartmentController {
      * Read all apartments by type code id and ad Code.
      *
      * @param typeCodeId Integer
-     * @param adCode String
-     * @param page Integer
-     * @param size Integer
+     * @param adCode     String
+     * @param page       Integer
+     * @param size       Integer
      * @return Page<ApartmentResponse>
      */
     @GetMapping(path = "/read-by-type-and-ad-code")
@@ -110,7 +111,7 @@ public class ApartmentController {
     @PostMapping(path = "/read-all-apartments")
     public ResponseEntity<Page<ApartmentResponse>> readAll(
             @RequestBody ApartmentReadDto apartmentReadDto
-            ) {
+    ) {
         return service.readAll(apartmentReadDto);
     }
 
@@ -155,8 +156,8 @@ public class ApartmentController {
     /**
      * Download XML file by Apartment ID.
      *
-     * @param request     HttpServletRequest
-     * @param response    HttpServletResponse
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
      * @throws IOException e
      */
     @TokenAuth
@@ -165,5 +166,22 @@ public class ApartmentController {
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         service.downloadXml(response);
+    }
+
+    /**
+     * Validate XML file based on xsd schema.
+     *
+     * @param request HttpServletRequest
+     * @param xmlFile MultipartFile
+     * @return Boolean
+     */
+    @TokenAuth
+    @PostMapping(path = "validate-xml")
+    public Boolean downloadXml(
+            HttpServletRequest request,
+            @RequestPart("xml_file")
+            MultipartFile xmlFile
+    ) {
+        return service.validateXMLSchema(xmlFile);
     }
 }

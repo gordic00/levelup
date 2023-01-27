@@ -152,7 +152,7 @@ public class ApartmentResponse {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "1")
     @JsonProperty("condition")
     @JoinColumn(name = "condition_id", insertable = false, updatable = false)
-    private ConditionEntity conditionEntity2;
+    private ConditionEntity conditionEntity;
 
     @OneToOne
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "1")
