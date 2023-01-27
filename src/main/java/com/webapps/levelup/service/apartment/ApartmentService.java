@@ -405,7 +405,7 @@ public class ApartmentService {
         String date = DateHelper.currentDate("MM-dd-YYYY");
         String xmlFile = prepareXml(apartmentResponses);
 
-        File file = new File("apartments_" + date + ".xml");
+        File file = new File("level_up_" + date + ".xml");
         FileWriter fw = new FileWriter(file, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fw);
         bufferedWriter.write(xmlFile);
@@ -421,7 +421,7 @@ public class ApartmentService {
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());
-        File local = new File("apartments_" + date + ".xml");
+        File local = new File("level_up_" + date + ".xml");
         if (local.exists()) {
             FileUtils.forceDelete(local);
         }
