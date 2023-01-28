@@ -2,6 +2,7 @@ package com.webapps.levelup.controller.apartment;
 
 import com.webapps.levelup.configuration.TokenAuth;
 import com.webapps.levelup.model.apartment.ApartmentResponse;
+import com.webapps.levelup.model.apartment.LocationEntity;
 import com.webapps.levelup.model.apartment.TypeEntity;
 import com.webapps.levelup.model.dto.ApartmentCreateDto;
 import com.webapps.levelup.model.dto.ApartmentReadDto;
@@ -136,6 +137,19 @@ public class ApartmentController {
     }
 
     /**
+     * Read all params lists.
+     *
+     * @return ListsDto
+     */
+    @GetMapping(path = "/read-all-locations")
+    public ResponseEntity<List<LocationEntity>> readAllLocations(
+            @RequestParam(value = "location", required = false, defaultValue = "beograd")
+            String location
+    ) {
+        return service.readAllLocations(location);
+    }
+
+    /**
      * Delete Apartment by ID.
      *
      * @param request     HttpServletRequest
@@ -166,6 +180,21 @@ public class ApartmentController {
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         service.downloadXml(response);
+    }
+
+    @TokenAuth
+    @PostMapping(path = "upload-xml")
+    public String uploadXml(
+            HttpServletRequest request) {
+        return service.uploadXmlFile();
+    }
+
+    @TokenAuth
+    @DeleteMapping(path = "delete-from-aws-by-url")
+    public void deleteFromAsw(
+            HttpServletRequest request,
+            @RequestParam("url") String url) {
+        service.deleteFromAws(url);
     }
 
     /**

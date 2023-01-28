@@ -2,7 +2,7 @@ package com.webapps.levelup.service.apartment;
 
 import com.webapps.levelup.configuration.ModelMapperConfig;
 import com.webapps.levelup.exception.CustomException;
-import com.webapps.levelup.helper.DateHelper;
+import com.webapps.levelup.external.AmazonClient;
 import com.webapps.levelup.helper.FileHelper;
 import com.webapps.levelup.helper.TokenHelper;
 import com.webapps.levelup.model.apartement_images.ApartmentImagesResponse;
@@ -46,6 +46,7 @@ public class ApartmentService {
     private final ApartmentRepository repo;
     private final ApartmentResponseRepository repoResponse;
     private final TypeRepository repoType;
+    private final LocationRepository repoLocation;
     private final AdditionalRepository additionalRepo;
     private final ConditionRepository conditionRepository;
     private final AdvertiserRepository advertiserRepository;
@@ -60,6 +61,7 @@ public class ApartmentService {
     private final ApartmentImagesService apartmentImagesService;
     private final ModelMapperConfig mmc;
     private final TokenHelper tokenHelper;
+    private final AmazonClient amazonClient;
 
     /*
     Creates new apartment.
@@ -241,30 +243,24 @@ public class ApartmentService {
         } else {
             if (apartmentReadDto.getAdCode() == null) {
                 query = repoResponse.
-                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo()
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(),
+                                        apartmentReadDto.getPriceTo(), apartmentReadDto.getLocation()
                                 );
-                query.removeIf(p ->
-                        !p.getCity().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
-                                !p.getMunicipality().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
-                                !p.getAddress().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()));
             } else {
                 query = repoResponse.
-                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
                                 (
                                         apartmentReadDto.getAdCode(), searchParams.getTypeIds(), searchParams.getStructureIds(),
                                         searchParams.getFloorIds(), searchParams.getFurnishedIds(),
                                         searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo()
+                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(),
+                                        apartmentReadDto.getPriceTo(), apartmentReadDto.getLocation()
                                 );
-                query.removeIf(p ->
-                        !p.getCity().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
-                                !p.getMunicipality().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()) &&
-                                !p.getAddress().toLowerCase().contains(apartmentReadDto.getLocation().toLowerCase()));
             }
             result = new PageImpl<>(query, pageable, query.size());
         }
@@ -358,6 +354,20 @@ public class ApartmentService {
     }
 
     /*
+    Read all locations by location name.
+     */
+    public ResponseEntity<List<LocationEntity>> readAllLocations(String location) {
+        List<LocationEntity> response =
+                repoLocation.findAllByFullNameContainsIgnoreCaseOrLocationCodeContainsIgnoreCase(location, location);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /*
     Read all params lists.
      */
     public ResponseEntity<ListsDto> readAllLists() {
@@ -397,20 +407,7 @@ public class ApartmentService {
     Download XML file for Apartment by ID.
      */
     public void downloadXml(HttpServletResponse response) throws IOException {
-//        Optional<ApartmentResponse> apartment = repoResponse.findById(apartmentId);
-        List<ApartmentResponse> apartmentResponses = repoResponse.findByOrderByIdDesc();
-        if (apartmentResponses.isEmpty()) {
-            throw new CustomException("There are no apartments.");
-        }
-        String date = DateHelper.currentDate("MM-dd-YYYY");
-        String xmlFile = prepareXml(apartmentResponses);
-
-        File file = new File("level_up_" + date + ".xml");
-        FileWriter fw = new FileWriter(file, true);
-        BufferedWriter bufferedWriter = new BufferedWriter(fw);
-        bufferedWriter.write(xmlFile);
-        bufferedWriter.close();
-
+        File file = prepareXmlFile();
         assertNotNull(file);
         String mimeType = URLConnection.guessContentTypeFromName(file.getName());
         if (mimeType == null) {
@@ -421,9 +418,50 @@ public class ApartmentService {
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());
-        File local = new File("level_up_" + date + ".xml");
+        File local = new File("level_up_" + ".xml");
         if (local.exists()) {
             FileUtils.forceDelete(local);
+        }
+    }
+
+    public String uploadXmlFile() {
+        File file = prepareXmlFile();
+        String url = "";
+        try {
+            url = amazonClient.uploadFile(file);
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage());
+        }
+
+        File local = new File("level_up" + ".xml");
+        if (local.exists()) {
+            try {
+                FileUtils.forceDelete(local);
+            } catch (Exception ignored) {
+            }
+        }
+        return url;
+    }
+
+    public void deleteFromAws(String url) {
+        amazonClient.deleteFileFromS3Bucket(url);
+    }
+
+    private File prepareXmlFile() {
+        List<ApartmentResponse> apartmentResponses = repoResponse.findByOrderByIdDesc();
+        if (apartmentResponses.isEmpty()) {
+            throw new CustomException("There are no apartments.");
+        }
+        String xmlFile = prepareXml(apartmentResponses);
+        try {
+            File file = new File("level_up" + ".xml");
+            FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bufferedWriter = new BufferedWriter(fw);
+            bufferedWriter.write(xmlFile);
+            bufferedWriter.close();
+            return file;
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage());
         }
     }
 
@@ -474,7 +512,7 @@ public class ApartmentService {
     private String populatePhotos(String xmlContent, ApartmentResponse apartment) {
         if (apartment.getApartmentImagesEntities() != null) {
             for (ApartmentImagesResponse image : apartment.getApartmentImagesEntities()) {
-                xmlContent = xmlContent + "<photo>" + image.getPath() + "</photo>";
+                xmlContent = xmlContent + "<photo><url>" + image.getPath() + "</url></photo>";
             }
         }
         return xmlContent;
@@ -486,8 +524,7 @@ public class ApartmentService {
                 .replace("{category}", "stanovi-iznajmljivanje")
                 .replace("{price}", nullR(apartment.getMonthlyUtilities()).toString())
                 .replace("{county_name}", "Srbija")
-                .replace("{city_name}", nullR(apartment.getCity()).toString())
-                .replace("{city_area_name}", nullR(apartment.getMunicipality()).toString())
+                .replace("{location_id}", nullR(apartment.getLocationEntity().getLocationId()).toString())
                 .replace("{address}", nullR(apartment.getAddress()).toString())
                 .replace("{address_no}", nullR(apartment.getAddressNo()).toString())
                 .replace("{description_rs}", nullR(apartment.getDescriptionSr()).toString())

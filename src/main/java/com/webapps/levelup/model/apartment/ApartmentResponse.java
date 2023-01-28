@@ -63,17 +63,11 @@ public class ApartmentResponse {
     @Column(name = "title_en")
     private String titleEn;
 
-    @Schema(example = "Beograd")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Beograd")
-    @JsonProperty("city")
-    @Column(name = "city", nullable = false)
-    private String city;
-
-    @Schema(example = "Stari Grad")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Stari Grad")
-    @JsonProperty("municipality")
-    @Column(name = "municipality", nullable = false)
-    private String municipality;
+    @OneToOne
+    @JsonFormat(shape = JsonFormat.Shape.OBJECT, pattern = "1")
+    @JsonProperty("location")
+    @JoinColumn(name = "location_id", insertable = false, updatable = false)
+    private LocationEntity locationEntity;
 
     @Schema(example = "Kraljice Marije 10")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Kneginje Ljubice")

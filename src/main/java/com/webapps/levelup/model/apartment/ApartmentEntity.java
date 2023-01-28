@@ -64,19 +64,13 @@ public class ApartmentEntity implements Serializable {
     @Column(name = "title_en")
     private String titleEn;
 
-    @Schema(example = "Beograd")
-    @NotNull(message = "city cannot be null")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Beograd")
-    @JsonProperty("city")
-    @Column(name = "city")
-    private String city;
-
-    @Schema(example = "Stari Grad")
-    @NotNull(message = "municipality cannot be null")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Stari Grad")
-    @JsonProperty("municipality")
-    @Column(name = "municipality")
-    private String municipality;
+    @Schema(example = "1")
+    @Min(value = 1, message = "location_id must be greater than or equal to 1")
+    @NotNull(message = "location_id cannot be null")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "1")
+    @JsonProperty("location_id")
+    @Column(name = "location_id")
+    private Integer locationId;
 
     @Schema(example = "Kraljice Marije 10")
     @NotNull(message = "address cannot be null")

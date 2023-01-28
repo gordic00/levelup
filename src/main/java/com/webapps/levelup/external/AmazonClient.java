@@ -35,6 +35,19 @@ public class AmazonClient {
         return fileUrl;
     }
 
+    public String uploadFile(File file) {
+        String fileUrl;
+        fileUrl = appProperties.getS3BucketDomain() + file.getName();
+        try {
+            uploadFileTos3bucket(file.getName(), file);
+        } catch (Exception e) {
+            file.delete();
+            throw new CustomException(e.getMessage());
+        }
+        file.delete();
+        return fileUrl;
+    }
+
     public void deleteFileFromS3Bucket(String fileUrl) {
         String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         awsConfig.amazonS3().deleteObject(appProperties.getS3BucketName(), fileName);

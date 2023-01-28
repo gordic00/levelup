@@ -30,11 +30,11 @@ public interface ApartmentResponseRepository extends CrudRepository<ApartmentRes
             (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
              List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);
 
-    List<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    List<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
             (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to);
+             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, String location);
 
-    List<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+    List<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
             (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to);
+             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, String location);
 }
