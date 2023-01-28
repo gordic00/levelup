@@ -44,10 +44,10 @@ public class ApartmentUpdateDto {
     @JsonProperty("title_en")
     private String titleEn;
 
-    @Schema(example = "1")
+    @Schema(example = "911")
     @Min(value = 1, message = "location_id must be greater than or equal to 1")
     @NotNull(message = "location_id cannot be null")
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "1")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "911")
     @JsonProperty("location_id")
     private Integer locationId;
 
@@ -148,10 +148,10 @@ public class ApartmentUpdateDto {
     @JsonProperty(value = "additional")
     private List<Integer> additional;
 
-    @Schema(example = "[1,2,3]")
-    @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "[1,2,3]")
+    @Schema(example = "1")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "1")
     @JsonProperty(value = "heating")
-    private List<Integer> heating;
+    private Integer heating;
 
     @Schema(example = "[1,2,3]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "[1,2,3]")

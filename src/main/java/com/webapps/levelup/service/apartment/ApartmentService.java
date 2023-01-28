@@ -121,7 +121,7 @@ public class ApartmentService {
      */
     private void prepareParams(
             ApartmentEntity newApartment,
-            List<Integer> additional, List<Integer> heating, List<Integer> included) {
+            List<Integer> additional, Integer heatingId, List<Integer> included) {
         if (!additional.isEmpty()) {
             List<AdditionalEntity> add = additionalRepo.findAll();
             add.forEach(a -> additional.forEach(ma -> {
@@ -130,13 +130,15 @@ public class ApartmentService {
                 }
             }));
         }
-        if (!heating.isEmpty()) {
+        if (heatingId != null) {
             List<HeatingEntity> add = heatingRepository.findAll();
-            add.forEach(a -> heating.forEach(ma -> {
-                if (a.getId().equals(ma)) {
-                    newApartment.getHeating().add(a);
+            add.forEach(a -> {
+                if (a.getId().equals(heatingId)) {
+                    Set<HeatingEntity> heat = new HashSet<>();
+                    heat.add(a);
+                    newApartment.setHeating(heat);
                 }
-            }));
+            });
         }
         if (!included.isEmpty()) {
             List<IncludedEntity> add = includedRepository.findAll();
