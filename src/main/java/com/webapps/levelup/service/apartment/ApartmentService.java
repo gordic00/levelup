@@ -421,10 +421,7 @@ public class ApartmentService {
         response.setContentLength((int) file.length());
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         FileCopyUtils.copy(inputStream, response.getOutputStream());
-        File local = new File("level_up_" + ".xml");
-        if (local.exists()) {
-            FileUtils.forceDelete(local);
-        }
+        file.delete();
     }
 
     public String uploadXmlFile() {
@@ -436,13 +433,7 @@ public class ApartmentService {
             throw new CustomException(e.getMessage());
         }
 
-        File local = new File("level_up" + ".xml");
-        if (local.exists()) {
-            try {
-                FileUtils.forceDelete(local);
-            } catch (Exception ignored) {
-            }
-        }
+        file.delete();
         return url;
     }
 
@@ -457,7 +448,7 @@ public class ApartmentService {
         }
         String xmlFile = prepareXml(apartmentResponses);
         try {
-            File file = new File("level_up" + ".xml");
+            File file = new File("/var/lib/tomcat9/webapps/files/level_up" + ".xml");
             FileWriter fw = new FileWriter(file, true);
             BufferedWriter bufferedWriter = new BufferedWriter(fw);
             bufferedWriter.write(xmlFile);

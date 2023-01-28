@@ -59,7 +59,7 @@ public class AmazonClient {
 
     private File convertMultiPartToFile(MultipartFile file)
             throws IOException {
-        File convFile = new File(Objects.requireNonNull(file.getOriginalFilename()));
+        File convFile = new File("/var/lib/tomcat9/webapps/files/" + Objects.requireNonNull(file.getOriginalFilename()));
         FileOutputStream fos = new FileOutputStream(convFile);
         fos.write(file.getBytes());
         fos.close();
