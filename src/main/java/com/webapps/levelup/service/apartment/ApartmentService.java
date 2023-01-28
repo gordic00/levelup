@@ -359,8 +359,9 @@ public class ApartmentService {
     Read all locations by location name.
      */
     public ResponseEntity<List<LocationEntity>> readAllLocations(String location) {
+        location = location.replace(" ","-");
         List<LocationEntity> response =
-                repoLocation.findAllByFullNameContainsIgnoreCaseOrLocationCodeContainsIgnoreCase(location, location);
+                repoLocation.findByFullNameIsContainingIgnoreCaseOrLocationCodeIsContainingIgnoreCase(location, location);
 
         if (response.isEmpty()) {
             return ResponseEntity.noContent().build();

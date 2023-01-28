@@ -10,5 +10,5 @@ import java.util.List;
 public interface LocationRepository extends CrudRepository<LocationEntity, Integer> {
     boolean existsById(Integer id);
 
-    List<LocationEntity> findAllByFullNameContainsIgnoreCaseOrLocationCodeContainsIgnoreCase(String name, String code);
+    List<LocationEntity> findByFullNameIsContainingIgnoreCaseOrLocationCodeIsContainingIgnoreCase(String name, String code);
 }

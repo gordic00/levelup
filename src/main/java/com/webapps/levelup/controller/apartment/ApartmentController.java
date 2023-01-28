@@ -143,7 +143,7 @@ public class ApartmentController {
      */
     @GetMapping(path = "/read-all-locations")
     public ResponseEntity<List<LocationEntity>> readAllLocations(
-            @RequestParam(value = "location", required = false, defaultValue = "beograd")
+            @RequestParam(value = "location", required = false, defaultValue = "beograd-")
             String location
     ) {
         return service.readAllLocations(location);
