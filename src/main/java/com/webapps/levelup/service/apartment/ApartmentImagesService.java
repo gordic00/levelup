@@ -11,6 +11,7 @@ import com.webapps.levelup.repository.apartment.ApartmentImageResponseRepository
 import com.webapps.levelup.repository.apartment.ApartmentResponseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -94,7 +95,7 @@ public class ApartmentImagesService {
     private void validateImages(MultipartFile[] images, File localesDir) {
         for (MultipartFile image : images) {
             if (allowedExtension(image)) {
-                throw new CustomException("File is not valid type (jpeg, jpg, img, png");
+                throw new CustomException("File is not valid type (jpeg, jpg, img, png)");
             }
             File[] apartmentImages = localesDir.listFiles();
             if (apartmentImages != null) {
@@ -109,8 +110,7 @@ public class ApartmentImagesService {
     }
 
     private boolean allowedExtension(MultipartFile image) {
-        String[] name = Objects.requireNonNull(image.getOriginalFilename()).split("\\.");
-        String extension = name[1];
+        String extension = FilenameUtils.getExtension(image.getOriginalFilename());
         List<String> allowed = List.of("jpeg", "jpg", "img", "png");
 
         return !allowed.contains(extension);
