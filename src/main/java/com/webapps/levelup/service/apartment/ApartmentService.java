@@ -448,7 +448,7 @@ public class ApartmentService {
         }
         String xmlFile = prepareXml(apartmentResponses);
         try {
-            File file = new File("/var/lib/tomcat9/webapps/files/level_up" + ".xml");
+            File file = new File("/var/lib/tomcat9/webapps/files/level_up.xml");
             FileWriter fw = new FileWriter(file, true);
             BufferedWriter bufferedWriter = new BufferedWriter(fw);
             bufferedWriter.write(xmlFile);

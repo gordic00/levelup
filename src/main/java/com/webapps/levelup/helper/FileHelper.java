@@ -1,10 +1,14 @@
 package com.webapps.levelup.helper;
 
+import com.webapps.levelup.exception.CustomException;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -195,5 +199,37 @@ public class FileHelper {
      */
     public static String templateReplacer(String source, String target, String replacement) {
         return source.replace(target, replacement);
+    }
+
+
+    /**
+     * Write watermark over image file.
+     *
+     * @param watermarkImageFile File
+     * @param sourceImageFile    File
+     */
+    public static void addImageWatermark(File watermarkImageFile, File sourceImageFile) {
+        try {
+            BufferedImage sourceImage = ImageIO.read(sourceImageFile);
+            BufferedImage watermarkImage = ImageIO.read(watermarkImageFile);
+
+            // initializes necessary graphic properties
+            Graphics2D g2d = (Graphics2D) sourceImage.getGraphics();
+            AlphaComposite alphaChannel = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f);
+            g2d.setComposite(alphaChannel);
+
+            // calculates the coordinate where the image is painted
+            int topLeftX = (sourceImage.getWidth() - watermarkImage.getWidth()) / 2;
+            int topLeftY = (sourceImage.getHeight() - watermarkImage.getHeight()) / 2;
+
+            // paints the image watermark
+            g2d.drawImage(watermarkImage, topLeftX, topLeftY, null);
+
+            ImageIO.write(sourceImage, "png", sourceImageFile);
+            g2d.dispose();
+
+        } catch (IOException e) {
+            throw new CustomException(e.getMessage());
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.webapps.levelup.external;
 import com.webapps.levelup.configuration.AWSConfig;
 import com.webapps.levelup.configuration.AppProperties;
 import com.webapps.levelup.exception.CustomException;
+import com.webapps.levelup.helper.FileHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,6 +24,8 @@ public class AmazonClient {
             throws Exception {
         String fileUrl;
         File file = convertMultiPartToFile(multipartFile);
+        File watermarkImageFile = new File("src/main/resources/watermark/levelup-watermark.png");
+        FileHelper.addImageWatermark(watermarkImageFile, file);
         String fileName = generateFileName(multipartFile);
         fileUrl = appProperties.getS3BucketDomain() + fileName;
         try {
