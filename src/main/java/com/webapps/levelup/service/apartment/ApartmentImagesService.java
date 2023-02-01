@@ -220,4 +220,20 @@ public class ApartmentImagesService {
         });
         return ResponseEntity.ok("Successfully updated.");
     }
+
+    @Transactional
+    public ResponseEntity<HttpStatus> uploadNewWatermark(MultipartFile watermark) throws IOException {
+        if (!Objects.equals(FilenameUtils.getExtension(watermark.getOriginalFilename()), "png")) {
+            throw new CustomException("Watermark must be PNG file.");
+        }
+        File localesDir = new File("/var/lib/tomcat9/webapps/files");
+        if (!localesDir.exists()) {
+            localesDir.mkdirs();
+        }
+        File convFile = new File("/var/lib/tomcat9/webapps/files/levelup-watermark.png");
+        FileOutputStream fos = new FileOutputStream(convFile);
+        fos.write(watermark.getBytes());
+        fos.close();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }

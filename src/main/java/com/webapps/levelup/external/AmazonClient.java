@@ -24,7 +24,7 @@ public class AmazonClient {
             throws Exception {
         String fileUrl;
         File file = convertMultiPartToFile(multipartFile);
-        File watermarkImageFile = new File("src/main/resources/watermark/levelup-watermark.png");
+        File watermarkImageFile = new File("/var/lib/tomcat9/webapps/files/levelup-watermark.png");
         FileHelper.addImageWatermark(watermarkImageFile, file);
         String fileName = generateFileName(multipartFile);
         fileUrl = appProperties.getS3BucketDomain() + fileName;

@@ -121,4 +121,15 @@ public class ApartmentImagesController {
     ) {
         return service.deleteAllByApartmentFromAws(apartmentId);
     }
+
+    @TokenAuth
+    @PostMapping(
+            path = "/upload/new-watermark",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<HttpStatus> newWatermark(
+            HttpServletRequest request,
+            @RequestPart("watermark")
+            MultipartFile watermark) throws IOException {
+        return service.uploadNewWatermark(watermark);
+    }
 }
