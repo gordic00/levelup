@@ -5,8 +5,7 @@ CREATE TABLE `apartment` (
                              `title_sr` varchar(255) COLLATE utf8_bin NOT NULL,
                              `title_ru` varchar(255) COLLATE utf8_bin DEFAULT NULL,
                              `title_en` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-                             `city` varchar(255) COLLATE utf8_bin NOT NULL,
-                             `municipality` varchar(255) COLLATE utf8_bin NOT NULL,
+                             `location_id` int(11) NOT NULL,
                              `address` varchar(255) COLLATE utf8_bin NOT NULL,
                              `address_no` int(11) NOT NULL,
                              `quadrature` int(11) NOT NULL,
@@ -59,5 +58,7 @@ CREATE TABLE `apartment` (
                                  `furnished` ( `id` ) ON DELETE CASCADE ON UPDATE CASCADE,
                                  KEY `fk_apartment_payment_type_v1` ( `payment_type_id` ) USING BTREE,
                              CONSTRAINT `fk_apartment_payment_type_v1` FOREIGN KEY ( `payment_type_id` ) REFERENCES
-                                 `payment_type` ( `id` ) ON DELETE CASCADE ON UPDATE CASCADE
+                                 `payment_type` ( `id` ) ON DELETE CASCADE ON UPDATE CASCADE,
+                             CONSTRAINT `fk_apartment_smsg_locations_v_1`
+                                 FOREIGN KEY (`location_id`) REFERENCES `smsg_locations` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC;

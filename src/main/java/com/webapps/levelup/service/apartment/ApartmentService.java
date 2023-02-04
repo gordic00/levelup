@@ -427,15 +427,13 @@ public class ApartmentService {
 
     public String uploadXmlFile() {
         File file = prepareXmlFile();
-        String url = "";
         try {
-            url = amazonClient.uploadFile(file);
+            String url = amazonClient.uploadFile(file);
+            file.delete();
+            return url;
         } catch (Exception e) {
             throw new CustomException(e.getMessage());
         }
-
-        file.delete();
-        return url;
     }
 
     public void deleteFromAws(String url) {
