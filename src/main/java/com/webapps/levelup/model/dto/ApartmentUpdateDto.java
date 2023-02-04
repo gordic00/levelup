@@ -8,6 +8,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -152,7 +153,7 @@ public class ApartmentUpdateDto {
     @Schema(example = "[1,2,3]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "[1,2,3]")
     @JsonProperty(value = "additional")
-    private List<Integer> additional;
+    private List<Integer> additional = new ArrayList<>();
 
     @Schema(example = "1")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "1")
@@ -162,5 +163,5 @@ public class ApartmentUpdateDto {
     @Schema(example = "[1,2,3]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER, pattern = "[1,2,3]")
     @JsonProperty(value = "included")
-    private List<Integer> included;
+    private List<Integer> included = new ArrayList<>();
 }
