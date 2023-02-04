@@ -165,6 +165,7 @@ public class ApartmentService {
         try {
             ApartmentEntity save = mmc.map(model, ApartmentEntity.class);
             prepareParams(save, model.getAdditional(), model.getHeating(), model.getIncluded());
+            save.setAdCode(apartment.get().getAdCode());
             save.setLastModifiedBy(tokenHelper.getEmailFromToken(request.getHeader("jwt-token")));
             save.setLastModifiedDate(Calendar.getInstance().getTime());
             repo.save(save);

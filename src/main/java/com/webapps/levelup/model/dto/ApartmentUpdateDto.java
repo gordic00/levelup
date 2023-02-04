@@ -51,11 +51,17 @@ public class ApartmentUpdateDto {
     @JsonProperty("location_id")
     private Integer locationId;
 
-    @Schema(example = "Kraljice Marije 10")
+    @Schema(example = "Kraljice Ljubice")
     @NotNull(message = "address cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "Kneginje Ljubice")
     @JsonProperty("address")
     private String address;
+
+    @Schema(example = "70")
+    @NotNull(message = "Address number cannot be null")
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "70")
+    @JsonProperty("address_no")
+    private Integer addressNo;
 
     @Schema(example = "70")
     @Min(value = 1, message = "rooms must be greater than or equal to 1")
