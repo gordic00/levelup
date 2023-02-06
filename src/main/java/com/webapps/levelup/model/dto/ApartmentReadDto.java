@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -47,17 +48,17 @@ public class ApartmentReadDto {
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
     @JsonProperty("floor_ids")
-    private List<Integer> floorIds;
+    private List<Integer> floorIds = new ArrayList<>();
 
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
     @JsonProperty("furnished_ids")
-    private List<Integer> furnishedIds;
+    private List<Integer> furnishedIds = new ArrayList<>();
 
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
     @JsonProperty("heating_ids")
-    private List<Integer> heatingIds;
+    private List<Integer> heatingIds = new ArrayList<>();
 
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
@@ -67,7 +68,7 @@ public class ApartmentReadDto {
     @Schema(example = "[1, 2]")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "[1, 2]")
     @JsonProperty("included_ids")
-    private List<Integer> includedIds;
+    private List<Integer> includedIds = new ArrayList<>();
 
     @Schema(example = "1")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_INT, pattern = "1")

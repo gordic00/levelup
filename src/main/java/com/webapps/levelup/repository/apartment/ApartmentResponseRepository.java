@@ -22,19 +22,19 @@ public interface ApartmentResponseRepository extends CrudRepository<ApartmentRes
 
     Page<ApartmentResponse> findByTypeEntity_IdAndAdCodeContainsIgnoreCase(Integer typeCodeId, String adCode, Pageable pageable);
 
-    Page<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
-            (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);
+    List<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdIn
+            (List<Integer> typeIds, List<Integer> structureIds,
+             List<Integer> constructionTypeIds);
 
-    Page<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
-            (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, Pageable pageable);
+    List<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndAdCodeContainsIgnoreCase
+            (List<Integer> typeIds, List<Integer> structureIds,
+             List<Integer> constructionTypeIds, String adCode);
 
-    List<ApartmentResponse> findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
-            (List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, String location);
+    List<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndLocationEntity_LocationCodeContainsIgnoreCase
+            (List<Integer> typeIds, List<Integer> structureIds,
+             List<Integer> constructionTypeIds, String location);
 
-    List<ApartmentResponse> findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
-            (String adCode, List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds, List<Integer> furnishedIds, List<Integer> heatingIds,
-             List<Integer> constructionTypeIds, List<Integer> includedIds, Long from, Long to, String location);
+    List<ApartmentResponse> findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndLocationEntity_LocationCodeContainsIgnoreCaseAndAdCodeContainsIgnoreCase
+            (List<Integer> typeIds, List<Integer> structureIds,
+             List<Integer> constructionTypeIds, String location, String adCode);
 }

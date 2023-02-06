@@ -212,72 +212,118 @@ public class ApartmentService {
     Read all apartments.
      */
     public ResponseEntity<Page<ApartmentResponse>> readAll(ApartmentReadDto apartmentReadDto) {
-        Pageable pageable = PageRequest.of(apartmentReadDto.getPage(), apartmentReadDto.getSize());
         Page<ApartmentResponse> result;
         List<ApartmentResponse> query;
 
-        SearchParamsDto searchParams =
-                prepareParamsForSearch(apartmentReadDto.getTypeIds(), apartmentReadDto.getStructureIds(),
-                        apartmentReadDto.getFloorIds(), apartmentReadDto.getFurnishedIds(),
-                        apartmentReadDto.getHeatingIds(), apartmentReadDto.getConstructionTypeIds(),
-                        apartmentReadDto.getIncludedIds());
+        SearchParamsDto searchParams = prepareParamsForSearch(
+                apartmentReadDto.getTypeIds(),
+                apartmentReadDto.getStructureIds(),
+                apartmentReadDto.getConstructionTypeIds());
 
-        System.out.println();
         if (apartmentReadDto.getLocation() == null) {
             if (apartmentReadDto.getAdCode() == null) {
-                result = repoResponse.
-                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
+                query = repoResponse.
+                        findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdIn(
+                                searchParams.getTypeIds(),
+                                searchParams.getStructureIds(),
+                                searchParams.getConstructionTypeIds()
+                        );
+            } else {
+                query = repoResponse.
+                        findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndAdCodeContainsIgnoreCase
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
-                                        searchParams.getFloorIds(), searchParams.getFurnishedIds(),
-                                        searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo(), pageable
-                                );
-            } else {
-                result = repoResponse.
-                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetween
-                                (
-                                        apartmentReadDto.getAdCode(), searchParams.getTypeIds(), searchParams.getStructureIds(),
-                                        searchParams.getFloorIds(), searchParams.getFurnishedIds(),
-                                        searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(), apartmentReadDto.getPriceTo(), pageable
+                                        searchParams.getConstructionTypeIds(),
+                                        apartmentReadDto.getAdCode()
                                 );
             }
         } else {
             if (apartmentReadDto.getAdCode() == null) {
                 query = repoResponse.
-                        findDistinctByTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
+                        findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndLocationEntity_LocationCodeContainsIgnoreCase
                                 (
                                         searchParams.getTypeIds(), searchParams.getStructureIds(),
-                                        searchParams.getFloorIds(), searchParams.getFurnishedIds(),
-                                        searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(),
-                                        apartmentReadDto.getPriceTo(), apartmentReadDto.getLocation()
+                                        searchParams.getConstructionTypeIds(),
+                                        apartmentReadDto.getLocation()
                                 );
             } else {
                 query = repoResponse.
-                        findDistinctByAdCodeContainsAndTypeEntityIdInAndStructureIdInAndFloorEntity_IdInAndFurnished_IdInAndHeating_IdInAndConstructionType_IdInAndIncluded_IdInAndMonthlyUtilitiesBetweenAndLocationEntity_LocationCodeContainsIgnoreCase
+                        findAllByTypeEntityIdInAndStructureIdInAndConstructionTypeIdInAndLocationEntity_LocationCodeContainsIgnoreCaseAndAdCodeContainsIgnoreCase
                                 (
-                                        apartmentReadDto.getAdCode(), searchParams.getTypeIds(), searchParams.getStructureIds(),
-                                        searchParams.getFloorIds(), searchParams.getFurnishedIds(),
-                                        searchParams.getHeatingIds(), searchParams.getConstructionTypeIds(),
-                                        searchParams.getIncludedIds(), apartmentReadDto.getPriceFrom(),
-                                        apartmentReadDto.getPriceTo(), apartmentReadDto.getLocation()
+                                        searchParams.getTypeIds(), searchParams.getStructureIds(),
+                                        searchParams.getConstructionTypeIds(),
+                                        apartmentReadDto.getLocation(),
+                                        apartmentReadDto.getAdCode()
                                 );
             }
-            result = new PageImpl<>(query, pageable, query.size());
         }
+        result = filterResult(apartmentReadDto, query);
 
-        return result == null ? ResponseEntity.noContent().build() : ResponseEntity.ok(result);
+        return result.getContent().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(result);
+    }
+
+    /*
+    Removes from query if not contains search params.
+     */
+    private Page<ApartmentResponse> filterResult(ApartmentReadDto apartmentReadDto, List<ApartmentResponse> query) {
+        Pageable pageable = PageRequest.of(apartmentReadDto.getPage(), apartmentReadDto.getSize());
+        HashSet<ApartmentResponse> remove = new HashSet<>();
+        for (ApartmentResponse q : query) {
+            if (!apartmentReadDto.getFloorIds().isEmpty() && !apartmentReadDto.getFloorIds().contains(q.getFloorEntity().getId())) {
+                remove.add(q);
+            }
+            if (!apartmentReadDto.getFurnishedIds().isEmpty() && !apartmentReadDto.getFurnishedIds().contains(q.getFurnished().getId())) {
+                remove.add(q);
+            }
+            if (q.getIncluded() != null && !apartmentReadDto.getIncludedIds().isEmpty()) {
+                List<Integer> ids = new ArrayList<>();
+                q.getIncluded().forEach(i -> ids.add(i.getId()));
+                ids.retainAll(apartmentReadDto.getIncludedIds());
+                if (ids.isEmpty()) {
+                    remove.add(q);
+                }
+            }
+            if (q.getHeating() != null && !apartmentReadDto.getHeatingIds().isEmpty()) {
+                List<Integer> ids = new ArrayList<>();
+                q.getHeating().forEach(h -> ids.add(h.getId()));
+                ids.retainAll(apartmentReadDto.getHeatingIds());
+                if (ids.isEmpty()) {
+                    remove.add(q);
+                }
+            }
+            if (q.getMonthlyUtilities() < apartmentReadDto.getPriceFrom()) {
+                remove.add(q);
+            }
+            if (q.getMonthlyUtilities() > apartmentReadDto.getPriceTo()) {
+                remove.add(q);
+            }
+        }
+        remove.forEach(query::remove);
+
+        return new PageImpl<>(pageableResponse(
+                query, apartmentReadDto.getPage(), apartmentReadDto.getSize()),
+                pageable,
+                query.size());
+    }
+
+    /*
+    Returns sublist from page and size.
+    */
+    private <E> List<E> pageableResponse(List<E> response, Integer page, Integer size) {
+        int from = Math.min(page * size, response.size());
+        int to = Math.min(from + size, response.size());
+
+        return response.subList(from, to);
     }
 
     /*
     Populate parameters for search.
      */
     private SearchParamsDto prepareParamsForSearch(
-            List<Integer> typeIds, List<Integer> structureIds, List<Integer> floorIds,
-            List<Integer> furnishedIds, List<Integer> heatingIds,
-            List<Integer> constructionTypeIds, List<Integer> includedIds) {
+            List<Integer> typeIds,
+            List<Integer> structureIds,
+            List<Integer> constructionTypeIds
+    ) {
         SearchParamsDto searchParamsDto = new SearchParamsDto();
         //Populate lists of params.
         ListsDto allLists = readAllLists().getBody();
@@ -300,30 +346,6 @@ public class ApartmentService {
             }
         }
         searchParamsDto.setStructureIds(structureIds);
-        //Floors
-        if (floorIds == null || floorIds.isEmpty()) {
-            floorIds = new ArrayList<>();
-            for (FloorEntity var : allLists.getFloor()) {
-                floorIds.add(var.getId());
-            }
-        }
-        searchParamsDto.setFloorIds(floorIds);
-        //Furnished
-        if (furnishedIds == null || furnishedIds.isEmpty()) {
-            furnishedIds = new ArrayList<>();
-            for (FurnishedEntity var : allLists.getFurnished()) {
-                furnishedIds.add(var.getId());
-            }
-        }
-        searchParamsDto.setFurnishedIds(furnishedIds);
-        //Heating
-        if (heatingIds == null || heatingIds.isEmpty()) {
-            heatingIds = new ArrayList<>();
-            for (HeatingEntity var : allLists.getHeating()) {
-                heatingIds.add(var.getId());
-            }
-        }
-        searchParamsDto.setHeatingIds(heatingIds);
         //Construction Types
         if (constructionTypeIds == null || constructionTypeIds.isEmpty()) {
             constructionTypeIds = new ArrayList<>();
@@ -332,14 +354,6 @@ public class ApartmentService {
             }
         }
         searchParamsDto.setConstructionTypeIds(constructionTypeIds);
-        //Included
-        if (includedIds == null || includedIds.isEmpty()) {
-            includedIds = new ArrayList<>();
-            for (IncludedEntity var : allLists.getIncluded()) {
-                includedIds.add(var.getId());
-            }
-        }
-        searchParamsDto.setIncludedIds(includedIds);
         return searchParamsDto;
     }
 
@@ -360,7 +374,7 @@ public class ApartmentService {
     Read all locations by location name.
      */
     public ResponseEntity<List<LocationEntity>> readAllLocations(String location) {
-        location = location.replace(" ","-");
+        location = location.replace(" ", "-");
         List<LocationEntity> response =
                 repoLocation.findByFullNameIsContainingIgnoreCaseOrLocationCodeIsContainingIgnoreCase(location, location);
 
@@ -495,9 +509,6 @@ public class ApartmentService {
     private String populateHeating(String xmlContent, ApartmentResponse apartment) {
         if (apartment.getHeating() != null) {
             xmlContent = xmlContent + "<heating>" + apartment.getHeating().stream().toList().get(0).getCode() + "</heating>";
-//            for (HeatingEntity heating : apartment.getHeating()) {
-//                xmlContent = xmlContent + "<heating>" + heating.getCode() + "</heating>";
-//            }
         }
         return xmlContent;
     }
@@ -525,24 +536,24 @@ public class ApartmentService {
     }
 
     private String populateSecondPartXml(String xmlContent, ApartmentResponse apartment) {
-        return xmlContent + "<area>" + nullR(apartment.getQuadrature()).toString() + "</area>" +
-                "<construction_type>" + nullR(apartment.getConstructionType().getCode()).toString() + "</construction_type>" +
-                "<furnished>" + nullR(apartment.getFurnished().getCode()).toString() + "</furnished>" +
-                "<bathrooms>" + nullR(apartment.getBathrooms().getCode()).toString() + "</bathrooms>";
+        return xmlContent + "<area>" + nullR(apartment.getQuadrature()) + "</area>" +
+                "<construction_type>" + nullR(apartment.getConstructionType().getCode()) + "</construction_type>" +
+                "<furnished>" + nullR(apartment.getFurnished().getCode()) + "</furnished>" +
+                "<bathrooms>" + nullR(apartment.getBathrooms().getCode()) + "</bathrooms>";
     }
 
     private String populateThirdPartXml(String xmlContent, ApartmentResponse apartment) {
-        return xmlContent + "<condition>" + nullR(apartment.getConditionEntity().getCode()).toString() + "</condition>" +
-                "<payment_type>" + nullR(apartment.getPaymentType().getCode()).toString() + "</payment_type>" +
-                "<monthly_utilities>" + nullR(apartment.getMonthlyUtilities()).toString() + "</monthly_utilities>" +
-                "<advertiser>" + nullR(apartment.getAdvertiser().getCode()).toString() + "</advertiser>" +
-                "<floor>" + nullR(apartment.getFloorEntity().getCode()).toString() + "</floor>" +
-                "<number_storeys>" + nullR(apartment.getNumberStoreys().getCode()).toString() + "</number_storeys>";
+        return xmlContent + "<condition>" + nullR(apartment.getConditionEntity().getCode()) + "</condition>" +
+                "<payment_type>" + nullR(apartment.getPaymentType().getCode()) + "</payment_type>" +
+                "<monthly_utilities>" + nullR(apartment.getMonthlyUtilities()) + "</monthly_utilities>" +
+                "<advertiser>" + nullR(apartment.getAdvertiser().getCode()) + "</advertiser>" +
+                "<floor>" + nullR(apartment.getFloorEntity().getCode()) + "</floor>" +
+                "<number_storeys>" + nullR(apartment.getNumberStoreys().getCode()) + "</number_storeys>";
 
     }
 
     private String populateForthPartXml(String xmlContent, ApartmentResponse apartment) {
-        xmlContent = xmlContent + "<structure>" + nullR(apartment.getStructure().getCode()).toString() + "</structure>";
+        xmlContent = xmlContent + "<structure>" + nullR(apartment.getStructure().getCode()) + "</structure>";
         if (apartment.getRooms() != null) {
             switch (apartment.getRooms()) {
                 case 2 -> xmlContent = xmlContent + "<number_rooms>number_rooms_two_rooms</number_rooms>";
