@@ -33,12 +33,12 @@ public class ApartmentReadDto {
     @Schema(example = "1")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "1")
     @JsonProperty(value = "price_from")
-    private Long priceFrom = 0L;
+    private Long priceFrom;
 
     @Schema(example = "100")
     @JsonFormat(shape = JsonFormat.Shape.NUMBER_FLOAT, pattern = "100")
     @JsonProperty(value = "price_to")
-    private Long priceTo = 99999999L;
+    private Long priceTo;
 
     @Schema(example = "721352")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "721352")

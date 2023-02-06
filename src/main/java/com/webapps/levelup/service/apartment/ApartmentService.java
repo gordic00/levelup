@@ -291,11 +291,21 @@ public class ApartmentService {
                     remove.add(q);
                 }
             }
-            if (q.getMonthlyUtilities() < apartmentReadDto.getPriceFrom()) {
-                remove.add(q);
+            if (apartmentReadDto.getPriceFrom() != null){
+                if (q.getMonthlyUtilities() != null && q.getMonthlyUtilities() < apartmentReadDto.getPriceFrom()) {
+                    remove.add(q);
+                }
+                if (q.getMonthlyUtilities() == null) {
+                    remove.add(q);
+                }
             }
-            if (q.getMonthlyUtilities() > apartmentReadDto.getPriceTo()) {
-                remove.add(q);
+            if (apartmentReadDto.getPriceTo() != null) {
+                if (q.getMonthlyUtilities() != null && q.getMonthlyUtilities() > apartmentReadDto.getPriceTo()) {
+                    remove.add(q);
+                }
+                if (q.getMonthlyUtilities() == null) {
+                    remove.add(q);
+                }
             }
         }
         remove.forEach(query::remove);
